@@ -32,7 +32,6 @@ public abstract class HorizontalRuler extends InnerRuler {
   //滑动完之后计算速度是否满足Fling，满足则使用OverScroller来计算Fling滑动
   @Override
   public boolean onTouchEvent(MotionEvent event) {
-    float currentX = event.getX();
     //开始速度检测
     if (mVelocityTracker == null) {
       mVelocityTracker = VelocityTracker.obtain();
@@ -41,19 +40,26 @@ public abstract class HorizontalRuler extends InnerRuler {
     ViewGroup parent = (ViewGroup) getParent();//为了解决刻度尺在scrollview这种布局里面滑动冲突问题
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
+        //记录首个触控点的id
+        mActivePointerId = event.findPointerIndex(event.getActionIndex());
         if (!mOverScroller.isFinished()) {
           mOverScroller.abortAnimation();
         }
 
-        mLastX = currentX;
+        mLastX = event.getX();
         parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
         break;
       case MotionEvent.ACTION_MOVE:
-        float moveX = mLastX - currentX;
-        mLastX = currentX;
+        if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
+          break;
+        }
+        float moveX = mLastX - event.getX(mActivePointerId);
+        mLastX = event.getX(mActivePointerId);
         scrollBy((int) (moveX), 0);
         break;
       case MotionEvent.ACTION_UP:
+        mActivePointerId = INVALID_ID;
+        mLastX = 0;
         //处理松手后的Fling
         mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
         int velocityX = (int) mVelocityTracker.getXVelocity();
@@ -71,6 +77,8 @@ public abstract class HorizontalRuler extends InnerRuler {
         parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
         break;
       case MotionEvent.ACTION_CANCEL:
+        mActivePointerId = INVALID_ID;
+        mLastX = 0;
         if (!mOverScroller.isFinished()) {
           mOverScroller.abortAnimation();
         }
@@ -195,7 +203,7 @@ public abstract class HorizontalRuler extends InnerRuler {
   protected void scrollBackToCurrentScale(int currentIntScale) {
     float intScrollX = scaleToScrollFloatX(currentIntScale);
     int dx = Math.round((intScrollX - SCALE_TO_PX_FACTOR * getScrollX()) / SCALE_TO_PX_FACTOR);
-    if (dx > minScrollerPx) {
+    if (Math.abs(dx) > minScrollerPx) {
       //渐变回弹
       mOverScroller.startScroll(getScrollX(), getScrollY(), dx, 0, 500);
       invalidate();

@@ -19,7 +19,7 @@ import hsicen.ruler.RulerCallback;
  */
 
 public abstract class InnerRuler extends View {
-  public static final String TAG = "ruler";
+  protected final static int INVALID_ID = -1;//非法触控id
   protected Context mContext;
   protected BooheeRuler mParent;
 
@@ -52,6 +52,7 @@ public abstract class InnerRuler extends View {
   protected EdgeEffect mStartEdgeEffect, mEndEdgeEffect;
   //边缘效应长度
   protected int mEdgeLength;
+  protected int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
 
   public InnerRuler(Context context, BooheeRuler booheeRuler) {
     super(context);
@@ -91,7 +92,6 @@ public abstract class InnerRuler extends View {
         goToScale(mCurrentScale);
       }
     });
-    checkAPILevel();
   }
 
   //初始化画笔
@@ -130,14 +130,6 @@ public abstract class InnerRuler extends View {
         }
         mEdgeLength = mParent.getCursorHeight() + mParent.getInterval() * mParent.getCount();
       }
-    }
-  }
-
-
-  //API小于18则关闭硬件加速，否则setAntiAlias()方法不生效
-  private void checkAPILevel() {
-    if (Build.VERSION.SDK_INT < 18) {
-      setLayerType(LAYER_TYPE_NONE, null);
     }
   }
 
