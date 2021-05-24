@@ -1,37 +1,34 @@
-package yanzhikai.ruler.InnerRulers;
+package hsicen.ruler.InnerRulers;
 
 import android.content.Context;
-import android.support.annotation.Px;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
 
-import yanzhikai.ruler.BooheeRuler;
+import androidx.annotation.Px;
+
+import hsicen.ruler.BooheeRuler;
 
 /**
- * 水平尺子抽象类
+ * 垂直尺子抽象类
  */
 
-public abstract class HorizontalRuler extends InnerRuler {
+public abstract class VerticalRuler extends InnerRuler {
     private final String TAG = "ruler";
-    private float mLastX = 0;
-    //拖动阈值,这里没有使用它，用了感觉体验不好
-    private int mTouchSlop;
-    //一半宽度
-    protected int mHalfWidth = 0;
+    //记录落点
+    private float mLastY = 0;
+    //一半高度
+    protected int mHalfHeight = 0;
 
-
-    public HorizontalRuler(Context context, BooheeRuler booheeRuler) {
+    public VerticalRuler(Context context, BooheeRuler booheeRuler) {
         super(context, booheeRuler);
     }
-
 
     //处理滑动，主要是触摸的时候通过计算现在的event坐标和上一个的位移量来决定scrollBy()的多少
     //滑动完之后计算速度是否满足Fling，满足则使用OverScroller来计算Fling滑动
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float currentX = event.getX();
+        float currentY = event.getY();
         //开始速度检测
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -44,20 +41,20 @@ public abstract class HorizontalRuler extends InnerRuler {
                     mOverScroller.abortAnimation();
                 }
 
-                mLastX = currentX;
+                mLastY = currentY;
                 parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
-                float moveX = mLastX - currentX;
-                mLastX = currentX;
-                scrollBy((int) (moveX), 0);
+                float moveY = mLastY - currentY;
+                mLastY = currentY;
+                scrollBy(0, (int) (moveY));
                 break;
             case MotionEvent.ACTION_UP:
                 //处理松手后的Fling
                 mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                int velocityX = (int) mVelocityTracker.getXVelocity();
-                if (Math.abs(velocityX) > mMinimumVelocity) {
-                    fling(-velocityX);
+                int velocityY = (int) mVelocityTracker.getYVelocity();
+                if (Math.abs(velocityY) > mMinimumVelocity) {
+                    fling(-velocityY);
                 } else {
                     scrollBackToCurrentScale();
                 }
@@ -67,13 +64,12 @@ public abstract class HorizontalRuler extends InnerRuler {
                     mVelocityTracker = null;
                 }
                 releaseEdgeEffects();
-                parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+                parent.requestDisallowInterceptTouchEvent(false);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (!mOverScroller.isFinished()) {
                     mOverScroller.abortAnimation();
                 }
-                //回滚到整点刻度
                 scrollBackToCurrentScale();
                 //VelocityTracker回收
                 if (mVelocityTracker != null) {
@@ -81,39 +77,33 @@ public abstract class HorizontalRuler extends InnerRuler {
                     mVelocityTracker = null;
                 }
                 releaseEdgeEffects();
-                parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+                parent.requestDisallowInterceptTouchEvent(false);//按下时开始让父控件不要处理任何touch事件
                 break;
         }
         return true;
     }
 
-    private void fling(int vX) {
-        mOverScroller.fling(getScrollX(), 0, vX, 0, mMinPosition - mEdgeLength, mMaxPosition + mEdgeLength, 0, 0);
+    private void fling(int vY) {
+        mOverScroller.fling(0, getScrollY(), 0, vY, 0, 0, mMinPosition - mEdgeLength, mMaxPosition + mEdgeLength);
         invalidate();
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
-    //重写滑动方法，设置到边界的时候不滑,并显示边缘效果。滑动完输出刻度。
+    //重写滑动方法，设置到边界的时候不滑。滑动完输出刻度
     @Override
     public void scrollTo(@Px int x, @Px int y) {
-        Log.i(TAG, "scrollTo x: " + x);
-        if (x < mMinPosition) {
-            goStartEdgeEffect(x);
-            x = mMinPosition;
+        if (y < mMinPosition) {
+            goStartEdgeEffect(y);
+            y = mMinPosition;
         }
-        if (x > mMaxPosition) {
-            goEndEdgeEffect(x);
-            x = mMaxPosition;
+        if (y > mMaxPosition) {
+            goEndEdgeEffect(y);
+            y = mMaxPosition;
         }
-        if (x != getScrollX()) {
+        if (y != getScrollY()) {
             super.scrollTo(x, y);
         }
 
-        mCurrentScale = scrollXtoScale(x);
+        mCurrentScale = scrollYtoScale(y);
         if (mRulerCallback != null) {
             mRulerCallback.onScaleChanging(Math.round(mCurrentScale));
         }
@@ -121,28 +111,28 @@ public abstract class HorizontalRuler extends InnerRuler {
     }
 
     //头部边缘效果处理
-    private void goStartEdgeEffect(int x) {
+    private void goStartEdgeEffect(int y) {
         if (mParent.canEdgeEffect()) {
             if (!mOverScroller.isFinished()) {
                 mStartEdgeEffect.onAbsorb((int) mOverScroller.getCurrVelocity());
                 mOverScroller.abortAnimation();
             } else {
-                mStartEdgeEffect.onPull((float) (mMinPosition - x) / (mEdgeLength) * 3 + 0.3f);
-                mStartEdgeEffect.setSize(mParent.getCursorHeight(), getWidth());
+                mStartEdgeEffect.onPull((float) (mMinPosition - y) / (mEdgeLength) * 3 + 0.3f);
+                mStartEdgeEffect.setSize(mParent.getCursorWidth(), getHeight());
             }
             postInvalidateOnAnimation();
         }
     }
 
     //尾部边缘效果处理
-    private void goEndEdgeEffect(int x) {
+    private void goEndEdgeEffect(int y) {
         if (mParent.canEdgeEffect()) {
             if (!mOverScroller.isFinished()) {
                 mEndEdgeEffect.onAbsorb((int) mOverScroller.getCurrVelocity());
                 mOverScroller.abortAnimation();
             } else {
-                mEndEdgeEffect.onPull((float) (x - mMaxPosition) / (mEdgeLength) * 3 + 0.3f);
-                mEndEdgeEffect.setSize(mParent.getCursorHeight(), getWidth());
+                mEndEdgeEffect.onPull((float) (y - mMaxPosition) / (mEdgeLength) * 3 + 0.3f);
+                mEndEdgeEffect.setSize(mParent.getCursorWidth(), getHeight());
             }
             postInvalidateOnAnimation();
         }
@@ -159,29 +149,25 @@ public abstract class HorizontalRuler extends InnerRuler {
     //直接跳转到当前刻度
     public void goToScale(float scale) {
         mCurrentScale = Math.round(scale);
-        scrollTo(scaleToScrollX(mCurrentScale), 0);
+        scrollTo(0, scaleToScrollY(mCurrentScale));
 //        if (mRulerCallback != null) {
 //            mRulerCallback.onScaleChanging(mCurrentScale);
 //        }
     }
 
-    //把滑动偏移量scrollX转化为刻度Scale
-    //TODO 转化大刻度（1000k以上）的时候会很卡，后面有时间再尝试缓存或者分级处理
-    private float scrollXtoScale(int scrollX) {
-//        Log.d(TAG, "scrollXtoScale: " + scrollX);
-        return ((float) (scrollX - mMinPosition) / mLength) * mMaxLength + mParent.getMinScale();
+    //把滑动偏移量scrollY转化为刻度Scale
+    private float scrollYtoScale(int scrollY) {
+        return ((float) (scrollY - mMinPosition) / mLength) * mMaxLength + mParent.getMinScale();
     }
 
-    //把Scale转化为ScrollX
-    private int scaleToScrollX(float scale) {
-//        Log.d(TAG, "scaleToScrollX: ");
-        return (int) ((scale - mParent.getMinScale()) / mMaxLength * mLength + mMinPosition);
+    //把Scale转化为ScrollY
+    private int scaleToScrollY(float scale) {
+        return Math.round((scale - mParent.getMinScale()) / mMaxLength * mLength + mMinPosition);
     }
 
-    //把Scale转化为ScrollX,放大SCALE_TO_PX_FACTOR倍，以免精度丢失问题
-    //TODO 转化大刻度的时候防止溢出
-    private float scaleToScrollFloatX(float scale) {
-        return (((scale - mParent.getMinScale()) / mMaxLength * mLength * SCALE_TO_PX_FACTOR) + mMinPosition * SCALE_TO_PX_FACTOR);
+    //把Scale转化为ScrollY,放大SCALE_TO_PX_FACTOR倍，以免精度丢失问题
+    private float scaleToScrollFloatY(float scale) {
+        return ((scale - mParent.getMinScale()) / mMaxLength * mLength * SCALE_TO_PX_FACTOR + mMinPosition * SCALE_TO_PX_FACTOR);
     }
 
     //把移动后光标对准距离最近的刻度，就是回弹到最近刻度
@@ -192,24 +178,24 @@ public abstract class HorizontalRuler extends InnerRuler {
 
     @Override
     protected void scrollBackToCurrentScale(int currentIntScale) {
-        float intScrollX = scaleToScrollFloatX(currentIntScale);
-        int dx = Math.round((intScrollX - SCALE_TO_PX_FACTOR * getScrollX()) / SCALE_TO_PX_FACTOR);
-        if (dx > minScrollerPx) {
+        int dy = Math.round((scaleToScrollFloatY(currentIntScale) - SCALE_TO_PX_FACTOR * getScrollY()) / SCALE_TO_PX_FACTOR);
+        if (dy > minScrollerPx) {
             //渐变回弹
-            mOverScroller.startScroll(getScrollX(), getScrollY(), dx, 0, 500);
+            mOverScroller.startScroll(getScrollX(), getScrollY(), 0, dy, 500);
             invalidate();
         } else {
             //立刻回弹
-            scrollBy(dx, 0);
+            scrollBy(0, dy);
         }
+
     }
 
     @Override
     public void refreshSize() {
         mLength = (mParent.getMaxScale() - mParent.getMinScale()) * mParent.getInterval();
-        mHalfWidth = getWidth() / 2;
-        mMinPosition = -mHalfWidth;
-        mMaxPosition = mLength - mHalfWidth;
+        mHalfHeight = getHeight() / 2;
+        mMinPosition = -mHalfHeight;
+        mMaxPosition = mLength - mHalfHeight;
     }
 
     //获取控件宽高，设置相应信息

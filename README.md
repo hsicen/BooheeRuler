@@ -26,7 +26,7 @@
 
 ```
         <!--数字和单位-->
-        <yanzhikai.ruler.KgNumberLayout
+        <hsicen.ruler.KgNumberLayout
             android:id="@+id/knl_bottom_head"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
             app:scaleTextSize="50sp" />                          
                                                            
     <!--尺子-->
-    <yanzhikai.ruler.BooheeRuler
+    <hsicen.ruler.BooheeRuler
         android:id="@+id/br_top_head"
         android:layout_width="match_parent"
         android:layout_height="100dp"
