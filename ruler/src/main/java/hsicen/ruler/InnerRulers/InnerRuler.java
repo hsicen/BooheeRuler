@@ -1,6 +1,7 @@
 package hsicen.ruler.InnerRulers;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.TypedValue;
@@ -14,10 +15,13 @@ import android.widget.OverScroller;
 import hsicen.ruler.BooheeRuler;
 import hsicen.ruler.RulerCallback;
 
-/**
- * 内部尺子抽象类
- */
 
+/**
+ * 作者：hsicen  5/25/21 19:01
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：刻度尺基类
+ */
 public abstract class InnerRuler extends View {
   protected final static int INVALID_ID = -1;//非法触控id
   protected Context mContext;
@@ -74,7 +78,7 @@ public abstract class InnerRuler extends View {
 
     mOverScroller = new OverScroller(mContext);
 
-//        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    //mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     //配置速度
     mVelocityTracker = VelocityTracker.obtain();
     mMaximumVelocity = ViewConfiguration.get(context)
@@ -98,11 +102,13 @@ public abstract class InnerRuler extends View {
   private void initPaints() {
     mSmallScalePaint = new Paint();
     mSmallScalePaint.setStrokeWidth(mParent.getSmallScaleWidth());
-    mSmallScalePaint.setColor(mParent.getScaleColor());
+    //提供设置颜色
+    mSmallScalePaint.setColor(Color.parseColor("#4DFFFFFF"));
     mSmallScalePaint.setStrokeCap(Paint.Cap.ROUND);
 
     mBigScalePaint = new Paint();
-    mBigScalePaint.setColor(mParent.getScaleColor());
+    //提供设置颜色
+    mBigScalePaint.setColor(Color.parseColor("#FFFFFFFF"));
     mBigScalePaint.setStrokeWidth(mParent.getBigScaleWidth());
     mBigScalePaint.setStrokeCap(Paint.Cap.ROUND);
 

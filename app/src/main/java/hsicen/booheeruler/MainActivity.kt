@@ -1,22 +1,25 @@
-package hsicen.booheeruler;
+package hsicen.booheeruler
 
-import android.os.Bundle;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import hsicen.booheeruler.databinding.ActivityMainBinding
 
-import androidx.appcompat.app.AppCompatActivity;
+class MainActivity : AppCompatActivity() {
+  private lateinit var binding: ActivityMainBinding
 
-import hsicen.ruler.BooheeRuler;
-import hsicen.ruler.KgNumberLayout;
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-public class MainActivity extends AppCompatActivity {
+    binding.knlTopHead.bindRuler(binding.brBottomHead)
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    binding.knlTopHead.configValue {
+      textSize = 16f
+    }
 
-    KgNumberLayout knl_top_head = (KgNumberLayout) findViewById(R.id.knl_top_head);
-    BooheeRuler br_bottom_head = (BooheeRuler) findViewById(R.id.br_bottom_head);
-
-    knl_top_head.bindRuler(br_bottom_head);
+    binding.knlTopHead.configUnit {
+      textSize = 12f
+    }
   }
 }

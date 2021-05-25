@@ -1,12 +1,13 @@
-package hsicen.ruler;
+package hsicen.ruler
 
 /**
- * Created by yany on 2017/10/16.
+ * 作者：hsicen  5/25/21 18:59
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：刻度尺刻度变化回调
  */
-
-public interface RulerCallback {
+interface RulerCallback {
   //选取刻度变化的时候回调
-  void onScaleChanging(float scale);
-  //选取刻度变化完成的时候回调
-//    void afterScaleChanged(float scale);
+  fun onScaleChanging(scale: Float) //选取刻度变化完成的时候回调
+  //    void afterScaleChanged(float scale);
 }

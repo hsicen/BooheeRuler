@@ -1,16 +1,14 @@
-package hsicen.ruler.Utils;
-
+package hsicen.ruler
 
 /**
- * author : yany
- * e-mail : yanzhikai_yjk@qq.com
- * time   : 2017/12/25
- * desc   : 处理刻度值字符串
+ * 作者：黄思程  5/25/21 19:03
+ * 邮箱：huangsicheng@camera360.com
+ * 功能：
+ * 描述：刻度尺字符串处理
  */
-
-public class RulerStringUtil {
-  private static float mFactorCache = 0;
-  private static float mDividerCache = 1;
+object RulerStringUtil {
+  private var mFactorCache = 0f
+  private var mDividerCache = 1f
 
   /**
    * 用于计算刻度值实际显示数值并转化为String，
@@ -20,22 +18,19 @@ public class RulerStringUtil {
    * @param factor 乘积因子，限制为正数
    * @return 返回结果字符串
    */
-  public static String resultValueOf(float input, float factor) {
-    if (factor >= 1) {
-      return String.valueOf((int) (input * factor));
-    } else if (factor > 0) {
-      if (mFactorCache != factor) {
-        mFactorCache = factor;
-        mDividerCache = 1 / factor;
+  @JvmStatic
+  fun formatValue(input: Float, factor: Float): String {
+    return when {
+      factor >= 1 -> "${(input * factor).toInt()}"
+      factor > 0 -> {
+        if (mFactorCache != factor) {
+          mFactorCache = factor
+          mDividerCache = 1 / factor
+        }
+
+        "${input / mDividerCache}"
       }
-      return String.valueOf(input / mDividerCache);
-    } else {
-      try {
-        throw new Exception("Invalid factor!");
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      else -> ""
     }
-    return "";
   }
 }

@@ -15,32 +15,67 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import hsicen.ruler.InnerRulers.BottomHeadRuler;
+import hsicen.ruler.InnerRulers.CenterHorizontalRuler;
 import hsicen.ruler.InnerRulers.InnerRuler;
 import hsicen.ruler.InnerRulers.LeftHeadRuler;
 import hsicen.ruler.InnerRulers.RightHeadRuler;
 import hsicen.ruler.InnerRulers.TopHeadRuler;
 
-/**
- * 用于包着尺子的外壳，用于画选取光标、外壳
- */
 
+/**
+ * 作者：hsicen  5/25/21 19:19
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：用于包着尺子的外壳，用于画选取光标、外壳
+ */
 public class BooheeRuler extends ViewGroup {
-  private final String TAG = "ruler";
   private Context mContext;
   //尺子Style定义
-  public static final int TOP_HEAD = 1, BOTTOM_HEAD = 2, LEFT_HEAD = 3, RIGHT_HEAD = 4;
-
-  @IntDef({TOP_HEAD, BOTTOM_HEAD, LEFT_HEAD, RIGHT_HEAD})
-  @Retention(RetentionPolicy.SOURCE)
-  public @interface RulerStyle {
-  }
-
+  public static final int TOP_HEAD = 1, BOTTOM_HEAD = 2, LEFT_HEAD = 3, RIGHT_HEAD = 4, CENTER_HEAD = 5;
   private @BooheeRuler.RulerStyle
-  int mStyle = TOP_HEAD;
+  int mStyle = CENTER_HEAD;
+  //最小最大刻度值(以0.1kg为单位)
+  private int mMinScale = 0, mMaxScale = 40;
   //内部的尺子
   private InnerRuler mInnerRuler;
-  //最小最大刻度值(以0.1kg为单位)
-  private int mMinScale = 464, mMaxScale = 2000;
+
+  private void initRuler(Context context) {
+    mContext = context;
+    switch (mStyle) {
+      case TOP_HEAD:
+        mInnerRuler = new TopHeadRuler(context, this);
+        paddingHorizontal();
+        break;
+      case BOTTOM_HEAD:
+        mInnerRuler = new BottomHeadRuler(context, this);
+        paddingHorizontal();
+        break;
+      case LEFT_HEAD:
+        mInnerRuler = new LeftHeadRuler(context, this);
+        paddingVertical();
+        break;
+      case RIGHT_HEAD:
+        mInnerRuler = new RightHeadRuler(context, this);
+        paddingVertical();
+        break;
+      case CENTER_HEAD:
+        mInnerRuler = new CenterHorizontalRuler(context, this);
+        paddingHorizontal();
+        break;
+    }
+
+    //设置全屏，加入InnerRuler
+    LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    mInnerRuler.setLayoutParams(layoutParams);
+    addView(mInnerRuler);
+
+    //设置ViewGroup可画
+    setWillNotDraw(false);
+
+    initDrawable();
+    initRulerBackground();
+  }
+
   //光标宽度、高度
   private int mCursorWidth = 8, mCursorHeight = 70;
   //大小刻度的长度
@@ -83,25 +118,21 @@ public class BooheeRuler extends ViewGroup {
   //轮廓宽度
   private int mOutLineWidth = 0;
 
-
   public BooheeRuler(Context context) {
     super(context);
     initRuler(context);
-
   }
 
   public BooheeRuler(Context context, AttributeSet attrs) {
     super(context, attrs);
     initAttrs(context, attrs);
     initRuler(context);
-
   }
 
   public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     initAttrs(context, attrs);
     initRuler(context);
-
   }
 
   @SuppressWarnings("WrongConstant")
@@ -139,46 +170,6 @@ public class BooheeRuler extends ViewGroup {
     typedArray.recycle();
   }
 
-  private void initRuler(Context context) {
-    mContext = context;
-    switch (mStyle) {
-      case TOP_HEAD:
-        mInnerRuler = new TopHeadRuler(context, this);
-        paddingHorizontal();
-        break;
-      case BOTTOM_HEAD:
-        mInnerRuler = new BottomHeadRuler(context, this);
-        paddingHorizontal();
-        break;
-      case LEFT_HEAD:
-        mInnerRuler = new LeftHeadRuler(context, this);
-        paddingVertical();
-        break;
-      case RIGHT_HEAD:
-        mInnerRuler = new RightHeadRuler(context, this);
-        paddingVertical();
-        break;
-    }
-
-    //设置全屏，加入InnerRuler
-    LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    mInnerRuler.setLayoutParams(layoutParams);
-    addView(mInnerRuler);
-    //设置ViewGroup可画
-    setWillNotDraw(false);
-
-    initDrawable();
-    initRulerBackground();
-  }
-
-  private void initRulerBackground() {
-    if (mRulerBackGround != null) {
-      mInnerRuler.setBackground(mRulerBackGround);
-    } else {
-      mInnerRuler.setBackgroundColor(mRulerBackGroundColor);
-    }
-  }
-
   //在宽高初始化之后定义光标Drawable的边界
   private void initDrawable() {
     getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -199,8 +190,18 @@ public class BooheeRuler extends ViewGroup {
               , mCursorWidth, (getHeight() + mCursorHeight) / 2);
             break;
           case RIGHT_HEAD:
-            mCursorDrawable.setBounds(getWidth() - mCursorWidth, (getHeight() - mCursorHeight) / 2
-              , getWidth(), (getHeight() + mCursorHeight) / 2);
+            mCursorDrawable.setBounds(
+              getWidth() - mCursorWidth,
+              (getHeight() - mCursorHeight) / 2
+              , getWidth(),
+              (getHeight() + mCursorHeight) / 2);
+            break;
+          case CENTER_HEAD:
+            mCursorDrawable.setBounds(
+              (getWidth() - mCursorWidth) / 2,
+              getHeight() / 2 - mCursorHeight / 2 + mPaddingTop,
+              (getWidth() + mCursorWidth) / 2,
+              getHeight() / 2 + mCursorHeight / 2 - mPaddingBottom);
             break;
         }
 
@@ -210,18 +211,12 @@ public class BooheeRuler extends ViewGroup {
 
   }
 
-
-  @Override
-  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-
-  }
-
-
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
+  private void initRulerBackground() {
+    if (mRulerBackGround != null) {
+      mInnerRuler.setBackground(mRulerBackGround);
+    } else {
+      mInnerRuler.setBackgroundColor(mRulerBackGroundColor);
+    }
   }
 
   @Override
@@ -229,14 +224,37 @@ public class BooheeRuler extends ViewGroup {
     super.dispatchDraw(canvas);
     //画中间的选定光标，要在这里画，因为dispatchDraw()执行在onDraw()后面，这样子光标才能不被尺子的刻度遮蔽
     mCursorDrawable.draw(canvas);
+  }
 
+  @Override
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+  }
+
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+    //手动设置刻度尺宽高
+    setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
   }
 
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    //手动布局
     if (changed) {
-      mInnerRuler.layout(mPaddingLeft, mPaddingTop, r - l - mPaddingRight, b - t - mPaddingBottom);
+      int left = this.mPaddingLeft;
+      int top = getMeasuredHeight() / 2 - mCursorHeight / 2 + mPaddingTop;
+      int right = r - l - mPaddingRight;
+      int bottom = getMeasuredHeight() / 2 + mCursorHeight / 2 - mPaddingBottom;
+
+      mInnerRuler.layout(left, top, right, bottom);
     }
+  }
+
+  @IntDef({TOP_HEAD, BOTTOM_HEAD, LEFT_HEAD, RIGHT_HEAD, CENTER_HEAD})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface RulerStyle {
   }
 
   private void paddingHorizontal() {
@@ -256,7 +274,6 @@ public class BooheeRuler extends ViewGroup {
   //设置回调
   public void setCallback(RulerCallback rulerCallback) {
     mInnerRuler.setRulerCallback(rulerCallback);
-
   }
 
   //设置当前进度
@@ -277,7 +294,6 @@ public class BooheeRuler extends ViewGroup {
     mInnerRuler.init(mContext);
     mInnerRuler.refreshSize();
   }
-
 
   public int getEdgeColor() {
     return mEdgeColor;
@@ -345,7 +361,6 @@ public class BooheeRuler extends ViewGroup {
   public int getCursorHeight() {
     return mCursorHeight;
   }
-
 
   public void setBigScaleLength(int bigScaleLength) {
     this.mBigScaleLength = bigScaleLength;

@@ -6,13 +6,15 @@ import android.graphics.Canvas;
 import hsicen.ruler.BooheeRuler;
 import hsicen.ruler.RulerStringUtil;
 
+
 /**
- * 头向上的尺子
+ * 作者：hsicen  5/25/21 19:27
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：刻度在中间
  */
-
-public class TopHeadRuler extends HorizontalRuler {
-
-  public TopHeadRuler(Context context, BooheeRuler booheeRuler) {
+public class CenterHorizontalRuler extends HorizontalRuler {
+  public CenterHorizontalRuler(Context context, BooheeRuler booheeRuler) {
     super(context, booheeRuler);
   }
 
@@ -25,35 +27,40 @@ public class TopHeadRuler extends HorizontalRuler {
 
   //画刻度和字
   private void drawScale(Canvas canvas) {
-    //计算开始和结束刻画时候的刻度
     float start = (getScrollX() - mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
     float end = (getScrollX() + canvas.getWidth() + mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
+    int height = canvas.getHeight();
+
     for (float i = start; i <= end; i++) {
-      //将要刻画的刻度转化为位置信息
       float locationX = (i - mParent.getMinScale()) * mParent.getInterval();
 
       if (i >= mParent.getMinScale() && i <= mParent.getMaxScale()) {
         if (i % mCount == 0) {
-          canvas.drawLine(locationX, 0, locationX, mParent.getBigScaleLength(), mBigScalePaint);
-          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), locationX, mParent.getTextMarginHead(), mTextPaint);
+          //整数刻度  绘制线和文字
+          int startY = height / 2 - mParent.getBigScaleLength() / 2;
+          int endY = height / 2 + mParent.getBigScaleLength() / 2;
+          canvas.drawLine(locationX, startY, locationX, endY, mBigScalePaint);
+          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), locationX, height - mParent.getTextMarginHead(), mTextPaint);
         } else {
-          canvas.drawLine(locationX, 0, locationX, mParent.getSmallScaleLength(), mSmallScalePaint);
+          //小数刻度  绘制线
+          int startY = height / 2 - mParent.getSmallScaleLength() / 2;
+          int endY = height / 2 + mParent.getSmallScaleLength() / 2;
+          canvas.drawLine(locationX, startY, locationX, endY, mSmallScalePaint);
         }
       }
     }
-    //画轮廓线
-    canvas.drawLine(getScrollX(), 0, getScrollX() + canvas.getWidth(), 0, mOutLinePaint);
-  }
 
+    //画轮廓线
+    //canvas.drawLine(getScrollX(), canvas.getHeight(), getScrollX() + canvas.getWidth(), canvas.getHeight(), mOutLinePaint);
+  }
 
   //画边缘效果
   private void drawEdgeEffect(Canvas canvas) {
     if (mParent.canEdgeEffect()) {
       if (!mStartEdgeEffect.isFinished()) {
         int count = canvas.save();
-        //旋转位移Canvas来使EdgeEffect绘画在正确的地方
         canvas.rotate(270);
-        canvas.translate(-mParent.getCursorHeight(), 0);
+        canvas.translate(-getHeight(), 0);
         if (mStartEdgeEffect.draw(canvas)) {
           postInvalidateOnAnimation();
         }
@@ -64,7 +71,7 @@ public class TopHeadRuler extends HorizontalRuler {
       if (!mEndEdgeEffect.isFinished()) {
         int count = canvas.save();
         canvas.rotate(90);
-        canvas.translate(0, -mLength);
+        canvas.translate((getHeight() - mParent.getCursorHeight()), -mLength);
         if (mEndEdgeEffect.draw(canvas)) {
           postInvalidateOnAnimation();
         }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 
 import hsicen.ruler.BooheeRuler;
-import hsicen.ruler.Utils.RulerStringUtil;
+import hsicen.ruler.RulerStringUtil;
 
 /**
  * 头向左的尺子
@@ -34,7 +34,7 @@ public class LeftHeadRuler extends VerticalRuler {
       if (i >= mParent.getMinScale() && i <= mParent.getMaxScale()) {
         if (i % mCount == 0) {
           canvas.drawLine(0, locationY, mParent.getBigScaleLength(), locationY, mBigScalePaint);
-          canvas.drawText(RulerStringUtil.resultValueOf(i, mParent.getFactor()), mParent.getTextMarginHead(), locationY + mParent.getTextSize() / 2, mTextPaint);
+          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), mParent.getTextMarginHead(), locationY + mParent.getTextSize() / 2, mTextPaint);
         } else {
           canvas.drawLine(0, locationY, mParent.getSmallScaleLength(), locationY, mSmallScalePaint);
         }

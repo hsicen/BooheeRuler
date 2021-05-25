@@ -4,12 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 
 import hsicen.ruler.BooheeRuler;
-import hsicen.ruler.Utils.RulerStringUtil;
+import hsicen.ruler.RulerStringUtil;
+
 
 /**
- * 头向下的尺子
+ * 作者：hsicen  5/25/21 19:27
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：头向下的尺子
  */
-
 public class BottomHeadRuler extends HorizontalRuler {
   public BottomHeadRuler(Context context, BooheeRuler booheeRuler) {
     super(context, booheeRuler);
@@ -34,7 +37,7 @@ public class BottomHeadRuler extends HorizontalRuler {
       if (i >= mParent.getMinScale() && i <= mParent.getMaxScale()) {
         if (i % mCount == 0) {
           canvas.drawLine(locationX, height - mParent.getBigScaleLength(), locationX, height, mBigScalePaint);
-          canvas.drawText(RulerStringUtil.resultValueOf(i, mParent.getFactor()), locationX, height - mParent.getTextMarginHead(), mTextPaint);
+          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), locationX, height - mParent.getTextMarginHead(), mTextPaint);
         } else {
           canvas.drawLine(locationX, height - mParent.getSmallScaleLength(), locationX, height, mSmallScalePaint);
         }
