@@ -31,7 +31,6 @@ public class KgNumberLayout extends RelativeLayout implements RulerCallback {
 
   private BooheeRuler mRuler;
 
-
   public KgNumberLayout(Context context) {
     super(context);
     init(context);

@@ -1,143 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="match_parent"
+  android:gravity="center"
+  android:orientation="vertical">
 
-  <LinearLayout
+  <!--数字和单位-->
+  <hsicen.ruler.KgNumberLayout
+    android:id="@+id/knl_top_head"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:orientation="vertical">
-    <!--数字和单位-->
-    <hsicen.ruler.KgNumberLayout
-      android:id="@+id/knl_bottom_head"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:kgTextSize="20sp"
-      app:scaleTextSize="50sp" />
-
-    <hsicen.ruler.KgNumberLayout
-      android:id="@+id/knl_right_head"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:kgTextSize="20sp"
-      app:scaleTextSize="50sp" />
-
-    <hsicen.ruler.KgNumberLayout
-      android:id="@+id/knl_left_head"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:kgTextSize="20sp"
-      app:scaleTextSize="50sp" />
-
-    <hsicen.ruler.KgNumberLayout
-      android:id="@+id/knl_top_head"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:kgTextSize="20sp"
-      app:scaleTextSize="50sp" />
-  </LinearLayout>
-
-
-  <!--尺子-->
-  <hsicen.ruler.BooheeRuler
-    android:id="@+id/br_top_head"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:layout_alignParentBottom="true"
-    app:bigScaleLength="40dp"
-    app:bigScaleWidth="2.5dp"
-    app:canEdgeEffect="true"
-    app:count="10"
-    app:currentScale="666"
-    app:cursorDrawable="@drawable/cursor_shape"
-    app:cursorHeight="45dp"
-    app:cursorWidth="4dp"
-    app:maxScale="2000"
-    app:minScale="-100"
-    app:numberTextSize="22sp"
-    app:outlineWidth="2.5dp"
-    app:paddingStartAndEnd="10dp"
-    app:rulerStyle="TOP_HEAD"
-    app:scaleInterval="11.5dp"
-    app:smallScaleLength="20dp"
-    app:smallScaleWidth="1.5dp"
-    app:textMarginHead="80dp" />
-
-  <!--尺子-->
-  <hsicen.ruler.BooheeRuler
-    android:id="@+id/br_right_head"
-    android:layout_width="100dp"
-    android:layout_height="match_parent"
-    android:layout_above="@+id/br_top_head"
-    android:layout_below="@+id/br_bottom_head"
-    android:layout_alignParentLeft="true"
-    app:bigScaleLength="40dp"
-    app:bigScaleWidth="2.5dp"
-    app:count="10"
-    app:currentScale="666"
-    app:cursorDrawable="@drawable/cursor_shape"
-    app:cursorHeight="4dp"
-    app:cursorWidth="45dp"
-    app:factor="10"
-    app:maxScale="2000"
-    app:minScale="464"
-    app:numberTextSize="22sp"
-    app:paddingStartAndEnd="10dp"
-    app:rulerStyle="RIGHT_HEAD"
-    app:scaleInterval="11.5dp"
-    app:smallScaleLength="20dp"
-    app:smallScaleWidth="1.5dp"
-    app:textMarginHead="70dp" />
-
-  <!--尺子-->
-  <hsicen.ruler.BooheeRuler
-    android:id="@+id/br_left_head"
-    android:layout_width="100dp"
-    android:layout_height="match_parent"
-    android:layout_above="@+id/br_top_head"
-    android:layout_below="@+id/br_bottom_head"
-    android:layout_alignParentRight="true"
-    app:bigScaleLength="40dp"
-    app:bigScaleWidth="2.5dp"
-    app:count="10"
-    app:currentScale="666"
-    app:cursorDrawable="@drawable/cursor_shape"
-    app:cursorHeight="4dp"
-    app:cursorWidth="45dp"
-    app:maxScale="2000"
-    app:minScale="464"
-    app:numberTextSize="22sp"
-    app:paddingStartAndEnd="10dp"
-    app:rulerStyle="LEFT_HEAD"
-    app:scaleInterval="11.5dp"
-    app:smallScaleLength="20dp"
-    app:smallScaleWidth="1.5dp"
-    app:textMarginHead="70dp" />
+    android:background="@color/colorAccent"
+    app:kgTextColor="#FFFFCF38"
+    app:kgTextSize="12sp"
+    app:kgUnitText="x"
+    app:scaleTextColor="#FFFFCF38"
+    app:scaleTextSize="12sp" />
 
   <!--尺子-->
   <hsicen.ruler.BooheeRuler
     android:id="@+id/br_bottom_head"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:layout_alignParentTop="true"
-    app:bigScaleLength="40dp"
-    app:bigScaleWidth="2.5dp"
+    android:layout_width="wrap_content"
+    android:layout_height="40dp"
+    app:bigScaleLength="8dp"
+    app:bigScaleWidth="2dp"
     app:count="10"
-    app:currentScale="6666"
+    app:currentScale="10"
     app:cursorDrawable="@drawable/cursor_shape"
-    app:cursorHeight="45dp"
-    app:cursorWidth="4dp"
-    app:maxScale="20000"
-    app:minScale="464"
-    app:numberTextSize="22sp"
-    app:paddingStartAndEnd="10dp"
+    app:cursorHeight="42dp"
+    app:cursorWidth="2dp"
+    app:maxScale="40"
+    app:minScale="0"
+    app:numberTextSize="10sp"
+    app:paddingStartAndEnd="2dp"
     app:rulerStyle="BOTTOM_HEAD"
-    app:scaleInterval="11.5dp"
-    app:smallScaleLength="20dp"
-    app:smallScaleWidth="1.5dp"
+    app:scaleInterval="10dp"
+    app:smallScaleLength="8dp"
+    app:smallScaleWidth="2dp"
     app:textMarginHead="70dp" />
 
-
-</RelativeLayout>
+</LinearLayout>
