@@ -48,7 +48,7 @@ public class TopHeadRuler extends HorizontalRuler {
 
   //画边缘效果
   private void drawEdgeEffect(Canvas canvas) {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       if (!mStartEdgeEffect.isFinished()) {
         int count = canvas.save();
         //旋转位移Canvas来使EdgeEffect绘画在正确的地方

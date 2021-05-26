@@ -1,26 +1,15 @@
-package hsicen.ruler;
+package hsicen.ruler
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IntDef;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import hsicen.ruler.InnerRulers.BottomHeadRuler;
-import hsicen.ruler.InnerRulers.CenterHorizontalRuler;
-import hsicen.ruler.InnerRulers.InnerRuler;
-import hsicen.ruler.InnerRulers.LeftHeadRuler;
-import hsicen.ruler.InnerRulers.RightHeadRuler;
-import hsicen.ruler.InnerRulers.TopHeadRuler;
-
+import android.content.Context
+import android.graphics.Canvas
+import android.util.AttributeSet
+import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnPreDrawListener
+import com.hsicen.extension.extensions.color
+import com.hsicen.extension.extensions.dp2px
+import com.hsicen.extension.extensions.drawableRes
+import com.hsicen.extension.extensions.sp2px
+import hsicen.ruler.InnerRulers.*
 
 /**
  * 作者：hsicen  5/25/21 19:19
@@ -28,409 +17,213 @@ import hsicen.ruler.InnerRulers.TopHeadRuler;
  * 功能：
  * 描述：用于包着尺子的外壳，用于画选取光标、外壳
  */
-public class BooheeRuler extends ViewGroup {
-  private Context mContext;
-  //尺子Style定义
-  public static final int TOP_HEAD = 1, BOTTOM_HEAD = 2, LEFT_HEAD = 3, RIGHT_HEAD = 4, CENTER_HEAD = 5;
-  private @BooheeRuler.RulerStyle
-  int mStyle = CENTER_HEAD;
-  //最小最大刻度值(以0.1kg为单位)
-  private int mMinScale = 0, mMaxScale = 40;
-  //内部的尺子
-  private InnerRuler mInnerRuler;
-
-  private void initRuler(Context context) {
-    mContext = context;
-    switch (mStyle) {
-      case TOP_HEAD:
-        mInnerRuler = new TopHeadRuler(context, this);
-        paddingHorizontal();
-        break;
-      case BOTTOM_HEAD:
-        mInnerRuler = new BottomHeadRuler(context, this);
-        paddingHorizontal();
-        break;
-      case LEFT_HEAD:
-        mInnerRuler = new LeftHeadRuler(context, this);
-        paddingVertical();
-        break;
-      case RIGHT_HEAD:
-        mInnerRuler = new RightHeadRuler(context, this);
-        paddingVertical();
-        break;
-      case CENTER_HEAD:
-        mInnerRuler = new CenterHorizontalRuler(context, this);
-        paddingHorizontal();
-        break;
-    }
-
-    //设置全屏，加入InnerRuler
-    LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    mInnerRuler.setLayoutParams(layoutParams);
-    addView(mInnerRuler);
-
-    //设置ViewGroup可画
-    setWillNotDraw(false);
-
-    initDrawable();
-    initRulerBackground();
-  }
-
-  //光标宽度、高度
-  private int mCursorWidth = 8, mCursorHeight = 70;
-  //大小刻度的长度
-  private int mSmallScaleLength = 30, mBigScaleLength = 60;
-  //大小刻度的粗细
-  private int mSmallScaleWidth = 3, mBigScaleWidth = 5;
-  //数字字体大小
-  private int mTextSize = 28;
-  //数字Text距离顶部高度
-  private int mTextMarginHead = 120;
-  //刻度间隔
-  private int mInterval = 18;
-  //数字Text颜色
-  private
-  @ColorInt
-  int mTextColor = getResources().getColor(R.color.colorLightBlack);
-  //刻度颜色
-  private
-  @ColorInt
-  int mScaleColor = getResources().getColor(R.color.colorGray);
-  //初始的当前刻度
-  private float mCurrentScale = 0;
-  //一格大刻度多少格小刻度
-  private int mCount = 10;
-  //光标drawable
-  private Drawable mCursorDrawable;
+class BooheeRuler @JvmOverloads constructor(
+  context: Context,
+  attrs: AttributeSet? = null,
+  defStyleAttr: Int = 0
+) : ViewGroup(context, attrs, defStyleAttr) {
   //尺子两端的padding
-  private int mPaddingStartAndEnd = 0;
-  private int mPaddingLeft = 0, mPaddingTop = 0, mPaddingRight = 0, mPaddingBottom = 0;
+  private var mPaddingStartAndEnd = 0
+  private var mPaddingLeft = 0
+  private var mPaddingTop = 0
+  private var mPaddingRight = 0
+  private var mPaddingBottom = 0
+
   //尺子背景
-  private Drawable mRulerBackGround;
-  private int mRulerBackGroundColor = getResources().getColor(R.color.colorDirtyWithe);
-  //是否启用边缘效应
-  private boolean mCanEdgeEffect = true;
-  //边缘颜色
-  private @ColorInt
-  int mEdgeColor = getResources().getColor(R.color.colorForgiven);
-  //刻度乘积因子
-  private float mFactor = 0.1f;
-  //轮廓宽度
-  private int mOutLineWidth = 0;
-
-  public BooheeRuler(Context context) {
-    super(context);
-    initRuler(context);
-  }
-
-  public BooheeRuler(Context context, AttributeSet attrs) {
-    super(context, attrs);
-    initAttrs(context, attrs);
-    initRuler(context);
-  }
-
-  public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
-    initAttrs(context, attrs);
-    initRuler(context);
-  }
-
-  @SuppressWarnings("WrongConstant")
-  private void initAttrs(Context context, AttributeSet attrs) {
-    TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.BooheeRuler, 0, 0);
-    mMinScale = typedArray.getInteger(R.styleable.BooheeRuler_minScale, mMinScale);
-    mMaxScale = typedArray.getInteger(R.styleable.BooheeRuler_maxScale, mMaxScale);
-    mCursorWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_cursorWidth, mCursorWidth);
-    mCursorHeight = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_cursorHeight, mCursorHeight);
-    mSmallScaleWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_smallScaleWidth, mSmallScaleWidth);
-    mSmallScaleLength = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_smallScaleLength, mSmallScaleLength);
-    mBigScaleWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_bigScaleWidth, mBigScaleWidth);
-    mBigScaleLength = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_bigScaleLength, mBigScaleLength);
-    mTextSize = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_numberTextSize, mTextSize);
-    mTextMarginHead = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_textMarginHead, mTextMarginHead);
-    mInterval = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_scaleInterval, mInterval);
-    mTextColor = typedArray.getColor(R.styleable.BooheeRuler_numberTextColor, mTextColor);
-    mScaleColor = typedArray.getColor(R.styleable.BooheeRuler_scaleColor, mScaleColor);
-    mCurrentScale = typedArray.getFloat(R.styleable.BooheeRuler_currentScale, (mMaxScale + mMinScale) / 2);
-    mCount = typedArray.getInt(R.styleable.BooheeRuler_count, mCount);
-    mCursorDrawable = typedArray.getDrawable(R.styleable.BooheeRuler_cursorDrawable);
-    if (mCursorDrawable == null) {
-      mCursorDrawable = getResources().getDrawable(R.drawable.cursor_shape);
-    }
-    mPaddingStartAndEnd = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_paddingStartAndEnd, mPaddingStartAndEnd);
-    mStyle = typedArray.getInt(R.styleable.BooheeRuler_rulerStyle, mStyle);
-    mRulerBackGround = typedArray.getDrawable(R.styleable.BooheeRuler_rulerBackGround);
-    if (mRulerBackGround == null) {
-      mRulerBackGroundColor = typedArray.getColor(R.styleable.BooheeRuler_rulerBackGround, mRulerBackGroundColor);
-    }
-    mCanEdgeEffect = typedArray.getBoolean(R.styleable.BooheeRuler_canEdgeEffect, mCanEdgeEffect);
-    mEdgeColor = typedArray.getColor(R.styleable.BooheeRuler_edgeColor, mEdgeColor);
-    mFactor = typedArray.getFloat(R.styleable.BooheeRuler_factor, mFactor);
-    mOutLineWidth = typedArray.getDimensionPixelOffset(R.styleable.BooheeRuler_outlineWidth, mOutLineWidth);
-    typedArray.recycle();
-  }
-
-  //在宽高初始化之后定义光标Drawable的边界
-  private void initDrawable() {
-    getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-      @Override
-      public boolean onPreDraw() {
-        getViewTreeObserver().removeOnPreDrawListener(this);
-        switch (mStyle) {
-          case TOP_HEAD:
-            mCursorDrawable.setBounds((getWidth() - mCursorWidth) / 2, 0
-              , (getWidth() + mCursorWidth) / 2, mCursorHeight);
-            break;
-          case BOTTOM_HEAD:
-            mCursorDrawable.setBounds((getWidth() - mCursorWidth) / 2, getHeight() - mCursorHeight
-              , (getWidth() + mCursorWidth) / 2, getHeight());
-            break;
-          case LEFT_HEAD:
-            mCursorDrawable.setBounds(0, (getHeight() - mCursorHeight) / 2
-              , mCursorWidth, (getHeight() + mCursorHeight) / 2);
-            break;
-          case RIGHT_HEAD:
-            mCursorDrawable.setBounds(
-              getWidth() - mCursorWidth,
-              (getHeight() - mCursorHeight) / 2
-              , getWidth(),
-              (getHeight() + mCursorHeight) / 2);
-            break;
-          case CENTER_HEAD:
-            mCursorDrawable.setBounds(
-              (getWidth() - mCursorWidth) / 2,
-              getHeight() / 2 - mCursorHeight / 2 + mPaddingTop,
-              (getWidth() + mCursorWidth) / 2,
-              getHeight() / 2 + mCursorHeight / 2 - mPaddingBottom);
-            break;
+  private var mStyle = CENTER_HORIZONTAL
+  private var mCursorDrawable = drawableRes(R.drawable.cursor_shape)
+  private var mRulerBackGroundColor = color(R.color.black)
+  private val mInnerRuler by lazy {
+    when (mStyle) {
+      TOP_HEAD -> {
+        TopHeadRuler(context, this).also {
+          paddingHorizontal()
         }
-
-        return false;
       }
-    });
-
-  }
-
-  private void initRulerBackground() {
-    if (mRulerBackGround != null) {
-      mInnerRuler.setBackground(mRulerBackGround);
-    } else {
-      mInnerRuler.setBackgroundColor(mRulerBackGroundColor);
+      BOTTOM_HEAD -> {
+        BottomHeadRuler(context, this).apply {
+          paddingHorizontal()
+        }
+      }
+      LEFT_HEAD -> {
+        LeftHeadRuler(context, this).also {
+          paddingVertical()
+        }
+      }
+      RIGHT_HEAD -> {
+        RightHeadRuler(context, this).also {
+          paddingVertical()
+        }
+      }
+      else -> {
+        CenterHorizontalRuler(context, this).also {
+          paddingHorizontal()
+        }
+      }
     }
   }
 
-  @Override
-  protected void dispatchDraw(Canvas canvas) {
-    super.dispatchDraw(canvas);
-    //画中间的选定光标，要在这里画，因为dispatchDraw()执行在onDraw()后面，这样子光标才能不被尺子的刻度遮蔽
-    mCursorDrawable.draw(canvas);
+  var minScale = 0 //最小最大刻度值(以0.1kg为单位)
+  var maxScale = 40
+  var cursorWidth = 2.dp2px //光标宽度、高度
+  var cursorHeight = 42.dp2px
+  var smallScaleLength = 8.dp2px //大小刻度的长度
+  var bigScaleLength = 8.dp2px
+  var smallScaleWidth = 2.dp2px //大小刻度的粗细
+  var bigScaleWidth = 2.dp2px
+  var textSize = 10.sp2px  //数字字体大小
+  var textMarginHead = 5.dp2px //数字Text距离顶部高度
+  var interval = 10.dp2px //刻度间隔
+  var textColor = color(R.color.white) //数字Text颜色
+  var scaleColor = color(R.color.white29) //刻度颜色
+  var canEdgeEffect = true //是否启用边缘效应
+  var count = 10 //一格大刻度多少格小刻度
+  var edgeColor = color(R.color.colorForgiven)  //边缘颜色
+
+  //初始的当前刻度
+  var currentScale = 10f
+    set(value) {
+      field = value
+      mInnerRuler.currentScale = value
+    }
+
+  //刻度乘积因子
+  var factor = 0.1f
+    set(value) {
+      field = value
+      mInnerRuler.postInvalidate()
+    }
+
+  //轮廓宽度
+  var outLineWidth = 0
+    set(value) {
+      field = value
+      mInnerRuler.postInvalidate()
+    }
+
+  init {
+    attrs?.let {
+      val typedArray = context.theme.obtainStyledAttributes(attrs, R.styleable.BooheeRuler, 0, 0)
+      minScale = typedArray.getInteger(R.styleable.BooheeRuler_minScale, minScale)
+      maxScale = typedArray.getInteger(R.styleable.BooheeRuler_maxScale, maxScale)
+      cursorWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_cursorWidth, cursorWidth)
+      cursorHeight = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_cursorHeight, cursorHeight)
+      smallScaleWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_smallScaleWidth, smallScaleWidth)
+      smallScaleLength = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_smallScaleLength, smallScaleLength)
+      bigScaleWidth = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_bigScaleWidth, bigScaleWidth)
+      bigScaleLength = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_bigScaleLength, bigScaleLength)
+      textSize = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_numberTextSize, textSize)
+      textMarginHead = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_textMarginHead, textMarginHead)
+      interval = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_scaleInterval, interval)
+      textColor = typedArray.getColor(R.styleable.BooheeRuler_numberTextColor, textColor)
+      scaleColor = typedArray.getColor(R.styleable.BooheeRuler_scaleColor, scaleColor)
+      currentScale = typedArray.getFloat(R.styleable.BooheeRuler_currentScale, ((maxScale + minScale) / 2).toFloat())
+      count = typedArray.getInt(R.styleable.BooheeRuler_count, count)
+      mCursorDrawable = typedArray.getDrawable(R.styleable.BooheeRuler_cursorDrawable) ?: mCursorDrawable
+      mPaddingStartAndEnd = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_paddingStartAndEnd, mPaddingStartAndEnd)
+      mStyle = typedArray.getInt(R.styleable.BooheeRuler_rulerStyle, mStyle)
+      mRulerBackGroundColor = typedArray.getColor(R.styleable.BooheeRuler_rulerBackGround, mRulerBackGroundColor)
+      canEdgeEffect = typedArray.getBoolean(R.styleable.BooheeRuler_canEdgeEffect, canEdgeEffect)
+      edgeColor = typedArray.getColor(R.styleable.BooheeRuler_edgeColor, edgeColor)
+      factor = typedArray.getFloat(R.styleable.BooheeRuler_factor, factor)
+      outLineWidth = typedArray.getDimensionPixelOffset(R.styleable.BooheeRuler_outlineWidth, outLineWidth)
+      typedArray.recycle()
+    }
+
+    val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    mInnerRuler.layoutParams = layoutParams
+    addView(mInnerRuler)
+
+    initDrawable()
+    initRulerBackground()
   }
 
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
+  private fun initDrawable() {
+    viewTreeObserver.addOnPreDrawListener(object : OnPreDrawListener {
+      override fun onPreDraw(): Boolean {
+        viewTreeObserver.removeOnPreDrawListener(this)
+        mCursorDrawable?.let { mCursor ->
+          when (mStyle) {
+            TOP_HEAD -> mCursor.setBounds((width - cursorWidth) / 2, 0, (width + cursorWidth) / 2, cursorHeight)
+            BOTTOM_HEAD -> mCursor.setBounds((width - cursorWidth) / 2, height - cursorHeight, (width + cursorWidth) / 2, height)
+            LEFT_HEAD -> mCursor.setBounds(0, (height - cursorHeight) / 2, cursorWidth, (height + cursorHeight) / 2)
+            RIGHT_HEAD -> mCursor.setBounds(width - cursorWidth, (height - cursorHeight) / 2, width, (height + cursorHeight) / 2)
+            CENTER_HORIZONTAL -> {
+              val left = (width - cursorWidth) / 2
+              val top = 4.dp2px
+              val right = (width + cursorWidth) / 2
+              val bottom = top + cursorHeight
+              mCursor.setBounds(left, top, right, bottom)
+            }
+          }
+        }
+        return false
+      }
+    })
   }
 
-  @Override
-  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+  private fun initRulerBackground() {
+    mInnerRuler.setBackgroundColor(mRulerBackGroundColor)
+  }
+
+  private fun paddingHorizontal() {
+    mPaddingLeft = mPaddingStartAndEnd
+    mPaddingRight = mPaddingStartAndEnd
+    mPaddingTop = 0
+    mPaddingBottom = 0
+  }
+
+  private fun paddingVertical() {
+    mPaddingTop = mPaddingStartAndEnd
+    mPaddingBottom = mPaddingStartAndEnd
+    mPaddingLeft = 0
+    mPaddingRight = 0
+  }
+
+  override fun dispatchDraw(canvas: Canvas) {
+    super.dispatchDraw(canvas)
+
+    mCursorDrawable?.draw(canvas)
+  }
+
+  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    super.onSizeChanged(w, h, oldw, oldh)
+    initDrawable()
+  }
+
+  override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
     //手动设置刻度尺宽高
-    setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
+    setMeasuredDimension(measuredWidth, 64.dp2px)
   }
 
-  @Override
-  protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    //手动布局
+  override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
     if (changed) {
-      int left = this.mPaddingLeft;
-      int top = getMeasuredHeight() / 2 - mCursorHeight / 2 + mPaddingTop;
-      int right = r - l - mPaddingRight;
-      int bottom = getMeasuredHeight() / 2 + mCursorHeight / 2 - mPaddingBottom;
+      val left = mPaddingLeft
+      val top = mPaddingTop
+      val right = r - l - mPaddingRight
+      val bottom = b - t - mPaddingBottom
 
-      mInnerRuler.layout(left, top, right, bottom);
+      mInnerRuler.layout(left, top, right, bottom)
     }
   }
 
-  @IntDef({TOP_HEAD, BOTTOM_HEAD, LEFT_HEAD, RIGHT_HEAD, CENTER_HEAD})
-  @Retention(RetentionPolicy.SOURCE)
-  public @interface RulerStyle {
+  fun refreshRuler() {
+    initDrawable()
+    mInnerRuler.init(context)
+    mInnerRuler.refreshSize()
   }
 
-  private void paddingHorizontal() {
-    mPaddingLeft = mPaddingStartAndEnd;
-    mPaddingRight = mPaddingStartAndEnd;
-    mPaddingTop = 0;
-    mPaddingBottom = 0;
+  fun setCallback(rulerCallback: RulerCallback?) {
+    mInnerRuler.setRulerCallback(rulerCallback)
   }
 
-  private void paddingVertical() {
-    mPaddingTop = mPaddingStartAndEnd;
-    mPaddingBottom = mPaddingStartAndEnd;
-    mPaddingLeft = 0;
-    mPaddingRight = 0;
-  }
-
-  //设置回调
-  public void setCallback(RulerCallback rulerCallback) {
-    mInnerRuler.setRulerCallback(rulerCallback);
-  }
-
-  //设置当前进度
-  public void setCurrentScale(float currentScale) {
-    mCurrentScale = currentScale;
-    mInnerRuler.setCurrentScale(currentScale);
-  }
-
-  //如果控件尺寸变化，中间光标的位置也要重新定义
-  @Override
-  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-    super.onSizeChanged(w, h, oldw, oldh);
-    initDrawable();
-  }
-
-  public void refreshRuler() {
-    initDrawable();
-    mInnerRuler.init(mContext);
-    mInnerRuler.refreshSize();
-  }
-
-  public int getEdgeColor() {
-    return mEdgeColor;
-  }
-
-  //设置能否使用边缘效果
-  public void setCanEdgeEffect(boolean canEdgeEffect) {
-    this.mCanEdgeEffect = canEdgeEffect;
-  }
-
-  public float getFactor() {
-    return mFactor;
-  }
-
-  public void setFactor(float factor) {
-    this.mFactor = factor;
-    mInnerRuler.postInvalidate();
-  }
-
-  public void setOutLineWidth(int outLineWidth) {
-    this.mOutLineWidth = outLineWidth;
-    mInnerRuler.postInvalidate();
-  }
-
-  public float getOutLineWidth() {
-    return mOutLineWidth;
-  }
-
-  public boolean canEdgeEffect() {
-    return mCanEdgeEffect;
-  }
-
-  public float getCurrentScale() {
-    return mCurrentScale;
-  }
-
-  public void setMinScale(int minScale) {
-    this.mMinScale = minScale;
-  }
-
-  public int getMinScale() {
-    return mMinScale;
-  }
-
-  public void setMaxScale(int maxScale) {
-    this.mMaxScale = maxScale;
-  }
-
-  public int getMaxScale() {
-    return mMaxScale;
-  }
-
-  public void setCursorWidth(int cursorWidth) {
-    this.mCursorWidth = cursorWidth;
-  }
-
-  public int getCursorWidth() {
-    return mCursorWidth;
-  }
-
-  public void setCursorHeight(int cursorHeight) {
-    this.mCursorHeight = cursorHeight;
-  }
-
-  public int getCursorHeight() {
-    return mCursorHeight;
-  }
-
-  public void setBigScaleLength(int bigScaleLength) {
-    this.mBigScaleLength = bigScaleLength;
-  }
-
-  public int getBigScaleLength() {
-    return mBigScaleLength;
-  }
-
-  public void setBigScaleWidth(int bigScaleWidth) {
-    this.mBigScaleWidth = bigScaleWidth;
-  }
-
-  public int getBigScaleWidth() {
-    return mBigScaleWidth;
-  }
-
-  public void setSmallScaleLength(int smallScaleLength) {
-    this.mSmallScaleLength = smallScaleLength;
-  }
-
-  public int getSmallScaleLength() {
-    return mSmallScaleLength;
-  }
-
-  public void setSmallScaleWidth(int smallScaleWidth) {
-    this.mSmallScaleWidth = smallScaleWidth;
-  }
-
-  public int getSmallScaleWidth() {
-    return mSmallScaleWidth;
-  }
-
-  public void setTextMarginTop(int textMarginTop) {
-    this.mTextMarginHead = textMarginTop;
-  }
-
-  public int getTextMarginHead() {
-    return mTextMarginHead;
-  }
-
-  public void setTextSize(int textSize) {
-    this.mTextSize = textSize;
-  }
-
-  public int getTextSize() {
-    return mTextSize;
-  }
-
-  public void setInterval(int interval) {
-    this.mInterval = interval;
-  }
-
-  public int getInterval() {
-    return mInterval;
-  }
-
-  public int getTextColor() {
-    return mTextColor;
-  }
-
-  public int getScaleColor() {
-    return mScaleColor;
-  }
-
-  public void setCount(int mCount) {
-    this.mCount = mCount;
-  }
-
-  public int getCount() {
-    return mCount;
+  companion object {
+    const val TOP_HEAD = 1
+    const val BOTTOM_HEAD = 2
+    const val LEFT_HEAD = 3
+    const val RIGHT_HEAD = 4
+    const val CENTER_HORIZONTAL = 5
   }
 }

@@ -56,7 +56,7 @@ public class CenterHorizontalRuler extends HorizontalRuler {
 
   //画边缘效果
   private void drawEdgeEffect(Canvas canvas) {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       if (!mStartEdgeEffect.isFinished()) {
         int count = canvas.save();
         canvas.rotate(270);

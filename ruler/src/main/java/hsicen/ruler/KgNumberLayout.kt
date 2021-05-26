@@ -6,7 +6,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.ColorInt
+import com.hsicen.extension.extensions.color
+import com.hsicen.extension.extensions.sp2px
 import hsicen.ruler.databinding.LayoutKgNumberBinding
 
 /**
@@ -23,15 +24,12 @@ class KgNumberLayout @JvmOverloads constructor(
   private lateinit var binding: LayoutKgNumberBinding
 
   //字体大小
-  private var mScaleTextSize = 12f
-  private var mKgTextSize = 40f
+  private var mScaleTextSize = 12f.sp2px
+  private var mKgTextSize = 12f.sp2px
 
   //字体颜色
-  @ColorInt
-  private var mScaleTextColor = resources.getColor(R.color.colorForgiven)
-
-  @ColorInt
-  private var mKgTextColor = resources.getColor(R.color.colorForgiven)
+  private var mScaleTextColor = color(R.color.yellow)
+  private var mKgTextColor = color(R.color.yellow)
 
   //kg单位文字
   private var mUnitText = "kg"

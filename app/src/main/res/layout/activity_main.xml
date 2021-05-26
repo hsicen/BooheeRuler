@@ -21,7 +21,7 @@
   <!--尺子-->
   <hsicen.ruler.BooheeRuler
     android:id="@+id/br_bottom_head"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="64dp"
     android:background="@color/colorGray"
     app:bigScaleLength="8dp"
@@ -35,7 +35,7 @@
     app:minScale="0"
     app:numberTextSize="10sp"
     app:rulerBackGround="#74915858"
-    app:rulerStyle="CENTER_HEAD"
+    app:rulerStyle="CENTER_HORIZONTAL"
     app:scaleInterval="10dp"
     app:smallScaleLength="8dp"
     app:smallScaleWidth="2dp"

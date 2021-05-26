@@ -131,7 +131,7 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   //头部边缘效果处理
   private void goStartEdgeEffect(int x) {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       if (!mOverScroller.isFinished()) {
         mStartEdgeEffect.onAbsorb((int) mOverScroller.getCurrVelocity());
         mOverScroller.abortAnimation();
@@ -145,7 +145,7 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   //尾部边缘效果处理
   private void goEndEdgeEffect(int x) {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       if (!mOverScroller.isFinished()) {
         mEndEdgeEffect.onAbsorb((int) mOverScroller.getCurrVelocity());
         mOverScroller.abortAnimation();
@@ -159,7 +159,7 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   //取消边缘效果动画
   private void releaseEdgeEffects() {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       mStartEdgeEffect.onRelease();
       mEndEdgeEffect.onRelease();
     }

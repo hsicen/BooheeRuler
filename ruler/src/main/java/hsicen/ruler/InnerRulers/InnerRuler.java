@@ -126,7 +126,7 @@ public abstract class InnerRuler extends View {
 
   //初始化边缘效果
   public void initEdgeEffects() {
-    if (mParent.canEdgeEffect()) {
+    if (mParent.getCanEdgeEffect()) {
       if (mStartEdgeEffect == null || mEndEdgeEffect == null) {
         mStartEdgeEffect = new EdgeEffect(mContext);
         mEndEdgeEffect = new EdgeEffect(mContext);
