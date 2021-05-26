@@ -1,4 +1,4 @@
-package hsicen.ruler.InnerRulers;
+package hsicen.ruler.inner;
 
 import android.content.Context;
 import android.graphics.Canvas;

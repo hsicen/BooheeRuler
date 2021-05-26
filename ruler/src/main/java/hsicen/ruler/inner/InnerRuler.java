@@ -1,4 +1,4 @@
-package hsicen.ruler.InnerRulers;
+package hsicen.ruler.inner;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -35,7 +35,7 @@ public abstract class InnerRuler extends View {
 
   protected Paint mSmallScalePaint, mBigScalePaint, mTextPaint, mOutLinePaint;
   //当前刻度值
-  protected float mCurrentScale = 0;
+  protected float mCurrentScale = 10f;
   //最大刻度数
   protected int mMaxLength = 0;
   //长度、最小可滑动值、最大可滑动值
@@ -117,7 +117,6 @@ public abstract class InnerRuler extends View {
     mTextPaint.setColor(mParent.getTextColor());
     mTextPaint.setTextSize(mParent.getTextSize());
     mTextPaint.setTextAlign(Paint.Align.CENTER);
-//        mTextPaint.setStrokeJoin(Paint.Join.ROUND);
     mOutLinePaint = new Paint();
     mOutLinePaint.setStrokeWidth(mParent.getOutLineWidth());
     mOutLinePaint.setAntiAlias(true);

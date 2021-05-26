@@ -9,7 +9,7 @@ import com.hsicen.extension.extensions.color
 import com.hsicen.extension.extensions.dp2px
 import com.hsicen.extension.extensions.drawableRes
 import com.hsicen.extension.extensions.sp2px
-import hsicen.ruler.InnerRulers.*
+import hsicen.ruler.inner.*
 
 /**
  * 作者：hsicen  5/25/21 19:19
@@ -72,11 +72,11 @@ class BooheeRuler @JvmOverloads constructor(
   var smallScaleWidth = 2.dp2px //大小刻度的粗细
   var bigScaleWidth = 2.dp2px
   var textSize = 10.sp2px  //数字字体大小
-  var textMarginHead = 5.dp2px //数字Text距离顶部高度
+  var textMarginHead = 1.dp2px //数字Text距离顶部高度
   var interval = 10.dp2px //刻度间隔
   var textColor = color(R.color.white) //数字Text颜色
   var scaleColor = color(R.color.white29) //刻度颜色
-  var canEdgeEffect = true //是否启用边缘效应
+  var canEdgeEffect = false //是否启用边缘效应
   var count = 10 //一格大刻度多少格小刻度
   var edgeColor = color(R.color.colorForgiven)  //边缘颜色
 

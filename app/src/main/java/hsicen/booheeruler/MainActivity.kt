@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     binding.knlTopHead.configUnit {
       textSize = 12f
+      binding.brBottomHead.refreshRuler()
     }
   }
 }

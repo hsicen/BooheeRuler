@@ -15,6 +15,7 @@
     app:kgTextColor="#FFFFCF38"
     app:kgTextSize="12sp"
     app:kgUnitText="x"
+    app:scaleSpecial="true"
     app:scaleTextColor="#FFFFCF38"
     app:scaleTextSize="12sp" />
 
@@ -27,11 +28,11 @@
     app:bigScaleLength="8dp"
     app:bigScaleWidth="2dp"
     app:count="10"
-    app:currentScale="10"
+    app:currentScale="27"
     app:cursorDrawable="@drawable/cursor_shape"
     app:cursorHeight="42dp"
     app:cursorWidth="2dp"
-    app:maxScale="40"
+    app:maxScale="30"
     app:minScale="0"
     app:numberTextSize="10sp"
     app:rulerBackGround="#74915858"
@@ -39,6 +40,6 @@
     app:scaleInterval="10dp"
     app:smallScaleLength="8dp"
     app:smallScaleWidth="2dp"
-    app:textMarginHead="0dp" />
+    app:textMarginHead="1dp" />
 
 </LinearLayout>

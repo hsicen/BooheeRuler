@@ -1,5 +1,7 @@
 package hsicen.ruler
 
+import kotlin.math.roundToInt
+
 /**
  * 作者：黄思程  5/25/21 19:03
  * 邮箱：huangsicheng@camera360.com
@@ -22,15 +24,38 @@ object RulerStringUtil {
   fun formatValue(input: Float, factor: Float): String {
     return when {
       factor >= 1 -> "${(input * factor).toInt()}"
-      factor > 0 -> {
-        if (mFactorCache != factor) {
-          mFactorCache = factor
-          mDividerCache = 1 / factor
-        }
-
-        "${input / mDividerCache}"
-      }
+      factor > 0 -> "${format(input, factor)}"
       else -> ""
     }
+  }
+
+  fun formatSpecial(input: Float, factor: Float): String {
+    return when (val count = input.toInt()) {
+      in 0..10 -> {
+        if (count == 10) return "1"
+        val tmp = 0.2 + format(input, 0.08f)
+        "${(tmp * 1000).roundToInt() / 1000f}"
+      }
+      in 10..20 -> {
+        if (count == 20) return "2"
+        "${1 + format(input - 10, 0.1f)}"
+      }
+      in 20..30 -> {
+        if (count == 25) return "3"
+        if (count == 30) return "4"
+        "${2 + format(input - 20, 0.2f)}"
+      }
+      else -> formatValue(input, factor)
+    }
+  }
+
+  //小数格式化
+  private fun format(input: Float, factor: Float): Float {
+    if (mFactorCache != factor) {
+      mFactorCache = factor
+      mDividerCache = 1 / factor
+    }
+
+    return input / mDividerCache
   }
 }

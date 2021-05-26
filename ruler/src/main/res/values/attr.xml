@@ -39,5 +39,6 @@
     <attr name="scaleTextColor" format="color" />
     <attr name="kgTextColor" format="color" />
     <attr name="kgUnitText" format="string" />
+    <attr name="scaleSpecial" format="boolean" />
   </declare-styleable>
 </resources>

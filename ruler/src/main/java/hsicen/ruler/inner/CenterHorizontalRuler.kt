@@ -1,11 +1,11 @@
-package hsicen.ruler.InnerRulers;
+package hsicen.ruler.inner
 
-import android.content.Context;
-import android.graphics.Canvas;
-
-import hsicen.ruler.BooheeRuler;
-import hsicen.ruler.RulerStringUtil;
-
+import android.content.Context
+import android.graphics.Canvas
+import android.util.AttributeSet
+import com.hsicen.extension.extensions.dp2px
+import hsicen.ruler.BooheeRuler
+import hsicen.ruler.RulerStringUtil.formatSpecial
 
 /**
  * 作者：hsicen  5/25/21 19:27
@@ -13,41 +13,40 @@ import hsicen.ruler.RulerStringUtil;
  * 功能：
  * 描述：刻度在中间
  */
-public class CenterHorizontalRuler extends HorizontalRuler {
-  public CenterHorizontalRuler(Context context, BooheeRuler booheeRuler) {
-    super(context, booheeRuler);
+class CenterHorizontalRuler @JvmOverloads constructor(
+  context: Context,
+  booheeRuler: BooheeRuler? = null,
+  attrs: AttributeSet? = null
+) : HorizontalRuler(context, booheeRuler) {
+
+  override fun onDraw(canvas: Canvas) {
+    super.onDraw(canvas)
+    drawScale(canvas)
+    drawEdgeEffect(canvas)
   }
 
-  @Override
-  protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-    drawScale(canvas);
-    drawEdgeEffect(canvas);
-  }
+  private fun drawScale(canvas: Canvas) {
+    val start = ((scrollX - mDrawOffset) / mParent.interval + mParent.minScale).toFloat()
+    val end = ((scrollX + canvas.width + mDrawOffset) / mParent.interval + mParent.minScale).toFloat()
+    val height = canvas.height
+    val startY = 21.dp2px
 
-  //画刻度和字
-  private void drawScale(Canvas canvas) {
-    float start = (getScrollX() - mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
-    float end = (getScrollX() + canvas.getWidth() + mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
-    int height = canvas.getHeight();
-
-    for (float i = start; i <= end; i++) {
-      float locationX = (i - mParent.getMinScale()) * mParent.getInterval();
-
-      if (i >= mParent.getMinScale() && i <= mParent.getMaxScale()) {
-        if (i % mCount == 0) {
+    var index = start
+    while (index <= end) {
+      val locationX = (index - mParent.minScale) * mParent.interval
+      if (index >= mParent.minScale && index <= mParent.maxScale) {
+        if (index % mCount == 0f) {
           //整数刻度  绘制线和文字
-          int startY = height / 2 - mParent.getBigScaleLength() / 2;
-          int endY = height / 2 + mParent.getBigScaleLength() / 2;
-          canvas.drawLine(locationX, startY, locationX, endY, mBigScalePaint);
-          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), locationX, height - mParent.getTextMarginHead(), mTextPaint);
+          val endY = startY + mParent.bigScaleLength
+          canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mBigScalePaint)
+          canvas.drawText("${formatSpecial(index, mParent.factor)}x", locationX, (height - mParent.textMarginHead).toFloat(), mTextPaint)
         } else {
           //小数刻度  绘制线
-          int startY = height / 2 - mParent.getSmallScaleLength() / 2;
-          int endY = height / 2 + mParent.getSmallScaleLength() / 2;
-          canvas.drawLine(locationX, startY, locationX, endY, mSmallScalePaint);
+          val endY = startY + mParent.smallScaleLength
+          canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mSmallScalePaint)
         }
       }
+      index++
     }
 
     //画轮廓线
@@ -55,29 +54,30 @@ public class CenterHorizontalRuler extends HorizontalRuler {
   }
 
   //画边缘效果
-  private void drawEdgeEffect(Canvas canvas) {
-    if (mParent.getCanEdgeEffect()) {
-      if (!mStartEdgeEffect.isFinished()) {
-        int count = canvas.save();
-        canvas.rotate(270);
-        canvas.translate(-getHeight(), 0);
+  private fun drawEdgeEffect(canvas: Canvas) {
+    if (mParent.canEdgeEffect) {
+      if (!mStartEdgeEffect.isFinished) {
+        val count = canvas.save()
+        canvas.rotate(270f)
+        canvas.translate(-height.toFloat(), 0f)
         if (mStartEdgeEffect.draw(canvas)) {
-          postInvalidateOnAnimation();
+          postInvalidateOnAnimation()
         }
-        canvas.restoreToCount(count);
+        canvas.restoreToCount(count)
       } else {
-        mStartEdgeEffect.finish();
+        mStartEdgeEffect.finish()
       }
-      if (!mEndEdgeEffect.isFinished()) {
-        int count = canvas.save();
-        canvas.rotate(90);
-        canvas.translate((getHeight() - mParent.getCursorHeight()), -mLength);
+
+      if (!mEndEdgeEffect.isFinished) {
+        val count = canvas.save()
+        canvas.rotate(90f)
+        canvas.translate((height - mParent.cursorHeight).toFloat(), -mLength.toFloat())
         if (mEndEdgeEffect.draw(canvas)) {
-          postInvalidateOnAnimation();
+          postInvalidateOnAnimation()
         }
-        canvas.restoreToCount(count);
+        canvas.restoreToCount(count)
       } else {
-        mEndEdgeEffect.finish();
+        mEndEdgeEffect.finish()
       }
     }
   }

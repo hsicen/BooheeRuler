@@ -1,4 +1,4 @@
-package hsicen.ruler.InnerRulers;
+package hsicen.ruler.inner;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,11 +7,12 @@ import hsicen.ruler.BooheeRuler;
 import hsicen.ruler.RulerStringUtil;
 
 /**
- * 头向→的尺子
+ * 头向左的尺子
  */
-public class RightHeadRuler extends VerticalRuler {
 
-  public RightHeadRuler(Context context, BooheeRuler booheeRuler) {
+public class LeftHeadRuler extends VerticalRuler {
+
+  public LeftHeadRuler(Context context, BooheeRuler booheeRuler) {
     super(context, booheeRuler);
   }
 
@@ -24,7 +25,6 @@ public class RightHeadRuler extends VerticalRuler {
 
   //画刻度和字
   private void drawScale(Canvas canvas) {
-    int width = canvas.getWidth();
     int height = canvas.getHeight();
     float start = (getScrollY() - mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
     float end = (getScrollY() + height + mDrawOffset) / mParent.getInterval() + mParent.getMinScale();
@@ -33,15 +33,16 @@ public class RightHeadRuler extends VerticalRuler {
 
       if (i >= mParent.getMinScale() && i <= mParent.getMaxScale()) {
         if (i % mCount == 0) {
-          canvas.drawLine(width - mParent.getBigScaleLength(), locationY, width, locationY, mBigScalePaint);
-          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), width - mParent.getTextMarginHead(), locationY + mParent.getTextSize() / 2, mTextPaint);
+          canvas.drawLine(0, locationY, mParent.getBigScaleLength(), locationY, mBigScalePaint);
+          canvas.drawText(RulerStringUtil.formatValue(i, mParent.getFactor()), mParent.getTextMarginHead(), locationY + mParent.getTextSize() / 2, mTextPaint);
         } else {
-          canvas.drawLine(width - mParent.getSmallScaleLength(), locationY, width, locationY, mSmallScalePaint);
+          canvas.drawLine(0, locationY, mParent.getSmallScaleLength(), locationY, mSmallScalePaint);
         }
       }
     }
     //画轮廓线
-    canvas.drawLine(canvas.getWidth(), getScrollY(), canvas.getWidth(), getScrollY() + height, mOutLinePaint);
+    canvas.drawLine(0, getScrollY(), 0, getScrollY() + height, mOutLinePaint);
+
   }
 
   //画边缘效果
@@ -49,8 +50,6 @@ public class RightHeadRuler extends VerticalRuler {
     if (mParent.getCanEdgeEffect()) {
       if (!mStartEdgeEffect.isFinished()) {
         int count = canvas.save();
-        canvas.translate((getWidth() - mParent.getCursorWidth()), 0);
-
         if (mStartEdgeEffect.draw(canvas)) {
           postInvalidateOnAnimation();
         }
@@ -61,7 +60,7 @@ public class RightHeadRuler extends VerticalRuler {
       if (!mEndEdgeEffect.isFinished()) {
         int count = canvas.save();
         canvas.rotate(180);
-        canvas.translate(-getWidth(), -mLength);
+        canvas.translate(-mParent.getCursorWidth(), -mLength);
         if (mEndEdgeEffect.draw(canvas)) {
           postInvalidateOnAnimation();
         }

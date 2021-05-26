@@ -30,6 +30,7 @@ class KgNumberLayout @JvmOverloads constructor(
   //字体颜色
   private var mScaleTextColor = color(R.color.yellow)
   private var mKgTextColor = color(R.color.yellow)
+  private var scaleSpecail = false
 
   //kg单位文字
   private var mUnitText = "kg"
@@ -43,6 +44,7 @@ class KgNumberLayout @JvmOverloads constructor(
       mScaleTextColor = typedArray.getColor(R.styleable.KgNumberLayout_scaleTextColor, mScaleTextColor)
       mKgTextColor = typedArray.getColor(R.styleable.KgNumberLayout_kgTextColor, mKgTextColor)
       mUnitText = typedArray.getString(R.styleable.KgNumberLayout_kgUnitText) ?: mUnitText
+      scaleSpecail = typedArray.getBoolean(R.styleable.KgNumberLayout_scaleSpecial, false)
 
       typedArray.recycle()
     }
@@ -75,7 +77,7 @@ class KgNumberLayout @JvmOverloads constructor(
 
   override fun onScaleChanging(scale: Float) {
     mRuler?.let {
-      binding.tvScale.text = RulerStringUtil.formatValue(scale, it.factor)
+      binding.tvScale.text = if (scaleSpecail) RulerStringUtil.formatSpecial(scale, it.factor) else RulerStringUtil.formatValue(scale, it.factor)
     }
   }
 }
