@@ -8,6 +8,7 @@ package hsicen.ruler
  */
 interface RulerCallback {
   //选取刻度变化的时候回调
-  fun onScaleChanging(scale: Float) //选取刻度变化完成的时候回调
-  //    void afterScaleChanged(float scale);
+  fun onScaleChanging(scale: Float)
+  //选取刻度变化完成的时候回调
+  //void afterScaleChanged(float scale);
 }

@@ -1,32 +1,29 @@
 package hsicen.ruler.inner;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewGroup;
 
 import androidx.annotation.Px;
 
+import com.hsicen.extension.log.KLog;
+
 import hsicen.ruler.BooheeRuler;
 
 /**
- * 水平尺子抽象类
+ * 作者：hsicen  5/26/21 18:33
+ * 邮箱：codinghuang@163.com
+ * 功能：
+ * 描述：水平尺子抽象类
  */
-
 public abstract class HorizontalRuler extends InnerRuler {
-  private final String TAG = "ruler";
   private float mLastX = 0;
-  //拖动阈值,这里没有使用它，用了感觉体验不好
-  private int mTouchSlop;
-  //一半宽度
   protected int mHalfWidth = 0;
-
 
   public HorizontalRuler(Context context, BooheeRuler booheeRuler) {
     super(context, booheeRuler);
   }
-
 
   //处理滑动，主要是触摸的时候通过计算现在的event坐标和上一个的位移量来决定scrollBy()的多少
   //滑动完之后计算速度是否满足Fling，满足则使用OverScroller来计算Fling滑动
@@ -109,7 +106,7 @@ public abstract class HorizontalRuler extends InnerRuler {
   //重写滑动方法，设置到边界的时候不滑,并显示边缘效果。滑动完输出刻度。
   @Override
   public void scrollTo(@Px int x, @Px int y) {
-    Log.i(TAG, "scrollTo x: " + x);
+    KLog.INSTANCE.d("scrollTo x: " + x);
     if (x < mMinPosition) {
       goStartEdgeEffect(x);
       x = mMinPosition;
