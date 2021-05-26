@@ -75,7 +75,7 @@ class BooheeRuler @JvmOverloads constructor(
   var textMarginHead = 1.dp2px //数字Text距离顶部高度
   var interval = 10.dp2px //刻度间隔
   var textColor = color(R.color.white) //数字Text颜色
-  var scaleColor = color(R.color.white29) //刻度颜色
+  var scaleColor = color(R.color.white4) //刻度颜色
   var canEdgeEffect = false //是否启用边缘效应
   var count = 10 //一格大刻度多少格小刻度
   var edgeColor = color(R.color.colorForgiven)  //边缘颜色
@@ -95,7 +95,7 @@ class BooheeRuler @JvmOverloads constructor(
     }
 
   //轮廓宽度
-  var outLineWidth = 0
+  var outLineWidth = 1.dp2px
     set(value) {
       field = value
       mInnerRuler.postInvalidate()
@@ -150,7 +150,7 @@ class BooheeRuler @JvmOverloads constructor(
             RIGHT_HEAD -> mCursor.setBounds(width - cursorWidth, (height - cursorHeight) / 2, width, (height + cursorHeight) / 2)
             CENTER_HORIZONTAL -> {
               val left = (width - cursorWidth) / 2
-              val top = 4.dp2px
+              val top = 3.dp2px
               val right = (width + cursorWidth) / 2
               val bottom = top + cursorHeight
               mCursor.setBounds(left, top, right, bottom)
@@ -195,7 +195,7 @@ class BooheeRuler @JvmOverloads constructor(
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
     //手动设置刻度尺宽高
-    setMeasuredDimension(measuredWidth, 64.dp2px)
+    setMeasuredDimension(measuredWidth, measuredHeight)
   }
 
   override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {

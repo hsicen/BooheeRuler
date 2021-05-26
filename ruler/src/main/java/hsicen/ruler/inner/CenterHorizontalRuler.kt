@@ -2,9 +2,12 @@ package hsicen.ruler.inner
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.util.AttributeSet
+import com.hsicen.extension.extensions.color
 import com.hsicen.extension.extensions.dp2px
 import hsicen.ruler.BooheeRuler
+import hsicen.ruler.R
 import hsicen.ruler.RulerStringUtil.formatSpecial
 
 /**
@@ -29,19 +32,19 @@ class CenterHorizontalRuler @JvmOverloads constructor(
     val start = ((scrollX - mDrawOffset) / mParent.interval + mParent.minScale).toFloat()
     val end = ((scrollX + canvas.width + mDrawOffset) / mParent.interval + mParent.minScale).toFloat()
     val height = canvas.height
-    val startY = 21.dp2px
+    val startY = 20.dp2px
+    var toX = start
 
     var index = start
     while (index <= end) {
       val locationX = (index - mParent.minScale) * mParent.interval
       if (index >= mParent.minScale && index <= mParent.maxScale) {
+        toX = locationX
         if (index % mCount == 0f) {
-          //整数刻度  绘制线和文字
           val endY = startY + mParent.bigScaleLength
           canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mBigScalePaint)
           canvas.drawText("${formatSpecial(index, mParent.factor)}x", locationX, (height - mParent.textMarginHead).toFloat(), mTextPaint)
         } else {
-          //小数刻度  绘制线
           val endY = startY + mParent.smallScaleLength
           canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mSmallScalePaint)
         }
@@ -49,8 +52,13 @@ class CenterHorizontalRuler @JvmOverloads constructor(
       index++
     }
 
-    //画轮廓线
-    //canvas.drawLine(getScrollX(), canvas.getHeight(), getScrollX() + canvas.getWidth(), canvas.getHeight(), mOutLinePaint);
+    val fromX = 0f - 10f.dp2px
+    val fromY = 5f.dp2px
+    val toY = fromY + 40f.dp2px
+    mOutLinePaint.color = color(R.color.white4)
+    mOutLinePaint.strokeWidth = 1f.dp2px
+    mOutLinePaint.style = Paint.Style.STROKE
+    canvas.drawRoundRect(fromX, fromY, toX + 10.dp2px, toY, 8f.dp2px, 8f.dp2px, mOutLinePaint)
   }
 
   //画边缘效果
