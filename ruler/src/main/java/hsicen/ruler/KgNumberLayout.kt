@@ -35,6 +35,7 @@ class KgNumberLayout @JvmOverloads constructor(
   //kg单位文字
   private var mUnitText = "kg"
   private var mRuler: BooheeRuler? = null
+  private val mCallbacks = ArrayList<RulerCallback>()
 
   init {
     attrs?.let {
@@ -62,6 +63,18 @@ class KgNumberLayout @JvmOverloads constructor(
     binding.tvKg.text = mUnitText
   }
 
+  override fun onScaleChanging(scale: Float) {
+    mRuler?.let {
+      val tmp = if (scaleSpecail) RulerStringUtil.formatSpecial(scale, it.factor) else RulerStringUtil.formatValue(scale, it.factor)
+      if (tmp != binding.tvScale.text.toString()) {
+        binding.tvScale.text = tmp
+        mCallbacks.forEach { callback ->
+          callback.onScaleChanging(tmp.toFloat())
+        }
+      }
+    }
+  }
+
   fun bindRuler(booheeRuler: BooheeRuler) {
     mRuler = booheeRuler
     booheeRuler.setCallback(this)
@@ -75,9 +88,12 @@ class KgNumberLayout @JvmOverloads constructor(
     binding.tvKg.also(config)
   }
 
-  override fun onScaleChanging(scale: Float) {
-    mRuler?.let {
-      binding.tvScale.text = if (scaleSpecail) RulerStringUtil.formatSpecial(scale, it.factor) else RulerStringUtil.formatValue(scale, it.factor)
-    }
+  fun addCallback(callback: RulerCallback) {
+    mCallbacks.add(callback)
   }
+
+  fun removeCallback(callback: RulerCallback) {
+    mCallbacks.remove(callback)
+  }
+
 }

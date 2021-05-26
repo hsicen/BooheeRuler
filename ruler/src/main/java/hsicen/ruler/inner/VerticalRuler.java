@@ -115,7 +115,6 @@ public abstract class VerticalRuler extends InnerRuler {
     if (mRulerCallback != null) {
       mRulerCallback.onScaleChanging(Math.round(mCurrentScale));
     }
-
   }
 
   //头部边缘效果处理

@@ -215,7 +215,7 @@ class BooheeRuler @JvmOverloads constructor(
     mInnerRuler.refreshSize()
   }
 
-  fun setCallback(rulerCallback: RulerCallback?) {
+  fun setCallback(rulerCallback: RulerCallback) {
     mInnerRuler.setRulerCallback(rulerCallback)
   }
 
