@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Px;
 
-import com.hsicen.extension.log.KLog;
-
 import hsicen.ruler.BooheeRuler;
 
 /**
@@ -113,7 +111,6 @@ public abstract class HorizontalRuler extends InnerRuler {
   //重写滑动方法，设置到边界的时候不滑,并显示边缘效果。滑动完输出刻度。
   @Override
   public void scrollTo(@Px int x, @Px int y) {
-    KLog.INSTANCE.d("scrollTo x: " + x);
     if (x < mMinPosition) {
       goStartEdgeEffect(x);
       x = mMinPosition;

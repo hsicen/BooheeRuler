@@ -42,10 +42,23 @@ class CenterHorizontalRuler @JvmOverloads constructor(
         toX = locationX
         if (index % mCount == 0f) {
           val endY = startY + mParent.bigScaleLength
+          if (index >= mParent.limitMinScale && index <= mParent.limitMaxScale) {
+            mBigScalePaint.color = color(R.color.white)
+            mTextPaint.color = color(R.color.white)
+          } else {
+            mBigScalePaint.color = color(R.color.white9)
+            mTextPaint.color = color(R.color.white9)
+          }
+
           canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mBigScalePaint)
           canvas.drawText("${formatSpecial(index, mParent.factor)}x", locationX, (height - mParent.textMarginHead).toFloat(), mTextPaint)
         } else {
           val endY = startY + mParent.smallScaleLength
+          if (index >= mParent.limitMinScale && index <= mParent.limitMaxScale) {
+            mSmallScalePaint.color = color(R.color.white29)
+          } else {
+            mSmallScalePaint.color = color(R.color.white9)
+          }
           canvas.drawLine(locationX, startY.toFloat(), locationX, endY.toFloat(), mSmallScalePaint)
         }
       }
@@ -56,7 +69,6 @@ class CenterHorizontalRuler @JvmOverloads constructor(
     val fromY = 5f.dp2px
     val toY = fromY + 40f.dp2px
     mOutLinePaint.color = color(R.color.white4)
-    mOutLinePaint.strokeWidth = 1f.dp2px
     mOutLinePaint.style = Paint.Style.STROKE
     canvas.drawRoundRect(fromX, fromY, toX + 10.dp2px, toY, 8f.dp2px, 8f.dp2px, mOutLinePaint)
   }

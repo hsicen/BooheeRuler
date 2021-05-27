@@ -70,6 +70,7 @@ class KgNumberLayout @JvmOverloads constructor(
       if (tmp != binding.tvScale.text.toString()) {
         binding.tvScale.text = tmp
         mCallbacks.forEach { callback ->
+          performHapticFeedback(5)
           callback.onScaleChanging(tmp.toFloat())
         }
       }
