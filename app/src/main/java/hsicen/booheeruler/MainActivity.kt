@@ -27,7 +27,11 @@ class MainActivity : AppCompatActivity() {
 
     binding.knlTopHead.addCallback(object : RulerCallback {
       override fun onScaleChanging(scale: Float) {
-        KLog.d("主页面：$scale")
+        KLog.d("主滑动中：$scale")
+      }
+
+      override fun afterScaleChanged(scale: Float) {
+        KLog.d("主滑动结束: $scale")
       }
     })
   }

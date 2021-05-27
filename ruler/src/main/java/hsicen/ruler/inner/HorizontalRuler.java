@@ -33,10 +33,14 @@ public abstract class HorizontalRuler extends InnerRuler {
     if (mVelocityTracker == null) {
       mVelocityTracker = VelocityTracker.obtain();
     }
+
     mVelocityTracker.addMovement(event);
     ViewGroup parent = (ViewGroup) getParent();//为了解决刻度尺在scrollview这种布局里面滑动冲突问题
     switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
+        touchComplete = false;
+        touchMove = false;
+
         //记录首个触控点的id
         mActivePointerId = event.findPointerIndex(event.getActionIndex());
         if (!mOverScroller.isFinished()) {
@@ -47,6 +51,8 @@ public abstract class HorizontalRuler extends InnerRuler {
         parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
         break;
       case MotionEvent.ACTION_MOVE:
+        touchMove = true;
+
         if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
           break;
         }
@@ -54,7 +60,9 @@ public abstract class HorizontalRuler extends InnerRuler {
         mLastX = event.getX(mActivePointerId);
         scrollBy((int) (moveX), 0);
         break;
+
       case MotionEvent.ACTION_UP:
+        touchComplete = true;
         mActivePointerId = INVALID_ID;
         mLastX = 0;
         //处理松手后的Fling
@@ -72,8 +80,11 @@ public abstract class HorizontalRuler extends InnerRuler {
         }
         releaseEdgeEffects();
         parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+        if (scrollComplete && touchMove) scrollComplete();
         break;
+
       case MotionEvent.ACTION_CANCEL:
+        touchComplete = true;
         mActivePointerId = INVALID_ID;
         mLastX = 0;
         if (!mOverScroller.isFinished()) {
@@ -88,6 +99,7 @@ public abstract class HorizontalRuler extends InnerRuler {
         }
         releaseEdgeEffects();
         parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+        if (scrollComplete && touchMove) scrollComplete();
         break;
     }
     return true;
@@ -111,10 +123,12 @@ public abstract class HorizontalRuler extends InnerRuler {
       goStartEdgeEffect(x);
       x = mMinPosition;
     }
+
     if (x > mMaxPosition) {
       goEndEdgeEffect(x);
       x = mMaxPosition;
     }
+
     if (x != getScrollX()) {
       super.scrollTo(x, y);
     }
@@ -161,30 +175,26 @@ public abstract class HorizontalRuler extends InnerRuler {
     }
   }
 
-  //直接跳转到当前刻度
+  //直接跳转到当前刻度(手动或初始化设置)
   public void goToScale(float scale) {
     mCurrentScale = Math.round(scale);
     scrollTo(scaleToScrollX(mCurrentScale), 0);
-//        if (mRulerCallback != null) {
-//            mRulerCallback.onScaleChanging(mCurrentScale);
-//        }
+    if (mRulerCallback != null) {
+      mRulerCallback.onScaleChanging(mCurrentScale);
+    }
   }
 
   //把滑动偏移量scrollX转化为刻度Scale
-  //TODO 转化大刻度（1000k以上）的时候会很卡，后面有时间再尝试缓存或者分级处理
   private float scrollXtoScale(int scrollX) {
-//        Log.d(TAG, "scrollXtoScale: " + scrollX);
     return ((float) (scrollX - mMinPosition) / mLength) * mMaxLength + mParent.getMinScale();
   }
 
   //把Scale转化为ScrollX
   private int scaleToScrollX(float scale) {
-//        Log.d(TAG, "scaleToScrollX: ");
     return (int) ((scale - mParent.getMinScale()) / mMaxLength * mLength + mMinPosition);
   }
 
   //把Scale转化为ScrollX,放大SCALE_TO_PX_FACTOR倍，以免精度丢失问题
-  //TODO 转化大刻度的时候防止溢出
   private float scaleToScrollFloatX(float scale) {
     return (((scale - mParent.getMinScale()) / mMaxLength * mLength * SCALE_TO_PX_FACTOR) + mMinPosition * SCALE_TO_PX_FACTOR);
   }
@@ -223,6 +233,4 @@ public abstract class HorizontalRuler extends InnerRuler {
     super.onSizeChanged(w, h, oldw, oldh);
     refreshSize();
   }
-
-
 }

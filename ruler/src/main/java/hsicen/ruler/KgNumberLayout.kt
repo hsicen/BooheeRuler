@@ -75,6 +75,13 @@ class KgNumberLayout @JvmOverloads constructor(
     }
   }
 
+  override fun afterScaleChanged(scale: Float) {
+    val tmp = binding.tvScale.text.toString()
+    mCallbacks.forEach { callback ->
+      callback.afterScaleChanged(tmp.toFloat())
+    }
+  }
+
   fun bindRuler(booheeRuler: BooheeRuler) {
     mRuler = booheeRuler
     booheeRuler.setCallback(this)

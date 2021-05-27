@@ -3,7 +3,6 @@ package hsicen.ruler.inner;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -57,6 +56,31 @@ public abstract class InnerRuler extends View {
   //边缘效应长度
   protected int mEdgeLength;
   protected int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
+
+  protected boolean touchComplete = true;
+  protected boolean scrollComplete = true;
+  protected boolean touchMove = false;
+  protected long lastScrollUpdate = -1;
+  protected long delayMillis = 50;
+  private final Runnable scrollerTask = new Runnable() {
+    @Override
+    public void run() {
+      long currentTime = System.currentTimeMillis();
+      if (currentTime - lastScrollUpdate > delayMillis) {
+        lastScrollUpdate = -1;
+        scrollComplete = true;
+        if (touchComplete) scrollComplete();
+      } else {
+        postDelayed(this, delayMillis);
+      }
+    }
+  };
+
+  protected void scrollComplete() {
+    if (mRulerCallback != null) {
+      mRulerCallback.afterScaleChanged(mCurrentScale);
+    }
+  }
 
   public InnerRuler(Context context, BooheeRuler booheeRuler) {
     super(context);
@@ -129,10 +153,8 @@ public abstract class InnerRuler extends View {
       if (mStartEdgeEffect == null || mEndEdgeEffect == null) {
         mStartEdgeEffect = new EdgeEffect(mContext);
         mEndEdgeEffect = new EdgeEffect(mContext);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-          mStartEdgeEffect.setColor(mParent.getEdgeColor());
-          mEndEdgeEffect.setColor(mParent.getEdgeColor());
-        }
+        mStartEdgeEffect.setColor(mParent.getEdgeColor());
+        mEndEdgeEffect.setColor(mParent.getEdgeColor());
         mEdgeLength = mParent.getCursorHeight() + mParent.getInterval() * mParent.getCount();
       }
     }
@@ -153,6 +175,12 @@ public abstract class InnerRuler extends View {
       }
       postInvalidate();
     }
+
+    scrollComplete = false;
+    if (lastScrollUpdate == -1) {
+      postDelayed(scrollerTask, delayMillis);
+    }
+    lastScrollUpdate = System.currentTimeMillis();
   }
 
   protected abstract void scrollBackToCurrentScale();
