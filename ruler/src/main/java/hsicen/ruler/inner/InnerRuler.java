@@ -56,6 +56,7 @@ public abstract class InnerRuler extends View {
   //边缘效应长度
   protected int mEdgeLength;
   protected int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
+  protected int mLimitMinPosition = 0, mLimitMaxPosition = 0;
 
   protected boolean touchComplete = true;
   protected boolean scrollComplete = true;

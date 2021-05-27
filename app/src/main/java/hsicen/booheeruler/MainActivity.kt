@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
 
     binding.knlTopHead.configUnit {
       textSize = 12f
+      //binding.brBottomHead.limitMinScale = 3
+      //binding.brBottomHead.limitMaxScale = 27
       binding.brBottomHead.refreshRuler()
     }
 

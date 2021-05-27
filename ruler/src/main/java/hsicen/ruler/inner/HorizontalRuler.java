@@ -106,13 +106,8 @@ public abstract class HorizontalRuler extends InnerRuler {
   }
 
   private void fling(int vX) {
-    mOverScroller.fling(getScrollX(), 0, vX, 0, mMinPosition - mEdgeLength, mMaxPosition + mEdgeLength, 0, 0);
+    mOverScroller.fling(getScrollX(), 0, vX, 0, mLimitMinPosition - mEdgeLength, mLimitMaxPosition + mEdgeLength, 0, 0);
     invalidate();
-  }
-
-  @Override
-  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
   }
 
   //重写滑动方法，设置到边界的时候不滑,并显示边缘效果。滑动完输出刻度。
@@ -129,13 +124,15 @@ public abstract class HorizontalRuler extends InnerRuler {
       x = mMaxPosition;
     }
 
-    if (x != getScrollX()) {
-      super.scrollTo(x, y);
-    }
+    if (x >= mLimitMinPosition && x <= mLimitMaxPosition) {
+      if (x != getScrollX()) {
+        super.scrollTo(x, y);
+      }
 
-    mCurrentScale = scrollXtoScale(x);
-    if (mRulerCallback != null) {
-      mRulerCallback.onScaleChanging(Math.round(mCurrentScale));
+      mCurrentScale = scrollXtoScale(x);
+      if (mRulerCallback != null) {
+        mRulerCallback.onScaleChanging(Math.round(mCurrentScale));
+      }
     }
   }
 
@@ -186,22 +183,26 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   //把滑动偏移量scrollX转化为刻度Scale
   private float scrollXtoScale(int scrollX) {
+
     return ((float) (scrollX - mMinPosition) / mLength) * mMaxLength + mParent.getMinScale();
   }
 
   //把Scale转化为ScrollX
   private int scaleToScrollX(float scale) {
+
     return (int) ((scale - mParent.getMinScale()) / mMaxLength * mLength + mMinPosition);
   }
 
   //把Scale转化为ScrollX,放大SCALE_TO_PX_FACTOR倍，以免精度丢失问题
   private float scaleToScrollFloatX(float scale) {
+
     return (((scale - mParent.getMinScale()) / mMaxLength * mLength * SCALE_TO_PX_FACTOR) + mMinPosition * SCALE_TO_PX_FACTOR);
   }
 
   //把移动后光标对准距离最近的刻度，就是回弹到最近刻度
   @Override
   protected void scrollBackToCurrentScale() {
+
     scrollBackToCurrentScale(Math.round(mCurrentScale));
   }
 
@@ -225,6 +226,8 @@ public abstract class HorizontalRuler extends InnerRuler {
     mHalfWidth = getWidth() / 2;
     mMinPosition = -mHalfWidth;
     mMaxPosition = mLength - mHalfWidth;
+    mLimitMinPosition = mMinPosition + mParent.getLimitMinScale() * mParent.getInterval();
+    mLimitMaxPosition = mMaxPosition - (mParent.getMaxScale() - mParent.getLimitMaxScale()) * mParent.getInterval();
   }
 
   //获取控件宽高，设置相应信息

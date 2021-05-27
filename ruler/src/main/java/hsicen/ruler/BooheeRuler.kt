@@ -65,6 +65,8 @@ class BooheeRuler @JvmOverloads constructor(
 
   var minScale = 0 //最小最大刻度值(以0.1kg为单位)
   var maxScale = 40
+  var limitMinScale = minScale
+  var limitMaxScale = maxScale
   var cursorWidth = 2.dp2px //光标宽度、高度
   var cursorHeight = 42.dp2px
   var smallScaleLength = 8.dp2px //大小刻度的长度

@@ -36,6 +36,7 @@ class KgNumberLayout @JvmOverloads constructor(
   private var mUnitText = "kg"
   private var mRuler: BooheeRuler? = null
   private val mCallbacks = ArrayList<RulerCallback>()
+  private var mLastScale = -1f
 
   init {
     attrs?.let {
@@ -76,9 +77,12 @@ class KgNumberLayout @JvmOverloads constructor(
   }
 
   override fun afterScaleChanged(scale: Float) {
-    val tmp = binding.tvScale.text.toString()
-    mCallbacks.forEach { callback ->
-      callback.afterScaleChanged(tmp.toFloat())
+    val tmp = binding.tvScale.text.toString().toFloat()
+    if (tmp != mLastScale) {
+      mLastScale = tmp
+      mCallbacks.forEach { callback ->
+        callback.afterScaleChanged(mLastScale)
+      }
     }
   }
 
