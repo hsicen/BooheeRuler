@@ -30,11 +30,14 @@ object RulerStringUtil {
   }
 
   fun formatSpecial(input: Float, factor: Float): String {
+
     return when (val count = input.toInt()) {
       in 0..10 -> {
         if (count == 10) return "1"
         val tmp = 0.2 + format(input, 0.08f)
-        "${(tmp * 1000).roundToInt() / 1000f}"
+        runCatching {
+          "${(tmp * 1000).roundToInt() / 1000f}"
+        }.getOrNull() ?: ""
       }
       in 10..20 -> {
         if (count == 20) return "2"
