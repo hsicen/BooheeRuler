@@ -11,6 +11,7 @@
     android:id="@+id/tv_scale"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:text="1"
     android:textSize="12sp"
     android:textStyle="bold"
     tools:text="1.5" />
@@ -19,6 +20,7 @@
     android:id="@+id/tv_kg"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:text="x"
     android:textSize="12sp"
     android:textStyle="bold"
     tools:text="x" />

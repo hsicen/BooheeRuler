@@ -37,7 +37,7 @@ object RulerStringUtil {
         val tmp = 0.2 + format(input, 0.08f)
         runCatching {
           "${(tmp * 1000).roundToInt() / 1000f}"
-        }.getOrNull() ?: ""
+        }.getOrNull() ?: "1"
       }
       in 10..20 -> {
         if (count == 20) return "2"
